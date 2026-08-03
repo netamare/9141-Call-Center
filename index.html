@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Call Center 9141 | Event Escalation</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand"><span class="brand-mark">9</span><span>Call Center<br><strong>9141</strong></span></div>
+      <nav class="navigation" aria-label="Main navigation">
+        <a class="nav-item active" href="#overview"><span>▦</span>Overview</a>
+        <a class="nav-item" href="#events"><span>◈</span>Live events <b>12</b></a>
+        <a class="nav-item" href="#incidents"><span>◉</span>Incidents</a>
+        <a class="nav-item" href="#teams"><span>♙</span>Response teams</a>
+        <a class="nav-item" href="#analytics"><span>◔</span>Analytics</a>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="coverage"><span class="coverage-dot"></span><div><small>Coverage status</small><strong>All systems operational</strong></div></div>
+        <button class="user-card"><span class="avatar">AM</span><span>Amara Mwangi<small>Duty supervisor</small></span><span>⌄</span></button>
+      </div>
+    </aside>
+
+    <main class="main-content" id="overview">
+      <header class="topbar">
+        <div class="topbar-left"><button class="menu-button" id="menuButton" aria-label="Open menu">☰</button><div><p class="eyebrow">MONDAY, 03 AUGUST 2026</p><h1>Operations overview</h1></div></div>
+        <div class="topbar-actions"><button class="icon-button" aria-label="Notifications">♧<i></i></button><button class="new-event" id="newEventButton">+ &nbsp; Log new event</button></div>
+      </header>
+
+      <section class="hero-alert" aria-label="Priority incident alert">
+        <div class="alert-icon">!</div><div class="alert-copy"><p><strong>Priority event requires attention</strong><span>•</span><span id="alertTimer">03:42</span> remaining to acknowledge</p><h2>Multi-vehicle collision reported on Mombasa Road</h2><small>Reported by 9141 caller • 07:18 EAT • Incident #INC-24081</small></div>
+        <div class="alert-actions"><button class="ghost-btn" id="viewIncident">View incident</button><button class="ack-btn" id="acknowledge">Acknowledge</button></div>
+      </section>
+
+      <section class="metrics" aria-label="Key performance indicators">
+        <article class="metric-card"><div class="metric-label"><span class="metric-icon coral">◉</span>Active events</div><strong id="activeEvents">12</strong><p><span class="up">↑ 20%</span> from last hour</p><div class="spark coral-line"></div></article>
+        <article class="metric-card"><div class="metric-label"><span class="metric-icon amber">◷</span>Avg. response time</div><strong>08:24 <small>min</small></strong><p><span class="up">↓ 01:12</span> faster than target</p><div class="spark amber-line"></div></article>
+        <article class="metric-card"><div class="metric-label"><span class="metric-icon blue">♙</span>Teams deployed</div><strong>18 <small>/ 24</small></strong><p><span class="neutral">6 teams</span> available</p><div class="team-dots"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></article>
+        <article class="metric-card"><div class="metric-label"><span class="metric-icon violet">✓</span>Resolution rate</div><strong>94.6<small>%</small></strong><p><span class="up">↑ 2.4%</span> this week</p><div class="progress"><span></span></div></article>
+      </section>
+
+      <section class="workspace-grid">
+        <article class="panel event-panel" id="events"><div class="panel-header"><div><p class="eyebrow">REAL-TIME INTAKE</p><h2>Live event queue</h2></div><button class="text-button">View all <span>→</span></button></div><div class="queue-tabs"><button class="selected">All <b>12</b></button><button>Unassigned <b>4</b></button><button>In progress <b>5</b></button></div><div class="event-list" id="eventList"></div></article>
+        <aside class="right-column"><article class="panel dispatch-panel"><div class="panel-header"><div><p class="eyebrow">FIELD READINESS</p><h2>Team availability</h2></div><button class="more">•••</button></div><div class="availability"><div class="ring"><span>75<small>%</small></span></div><div><strong>18 of 24 teams</strong><p>are currently deployed</p><div class="legend"><span><i class="green"></i>Available 6</span><span><i class="orange"></i>Deployed 18</span></div></div></div><button class="outline-button">Manage response teams <span>→</span></button></article><article class="panel activity-panel"><div class="panel-header"><div><p class="eyebrow">LATEST UPDATES</p><h2>Activity stream</h2></div><button class="text-button">See all</button></div><div class="activity-list" id="activityList"></div></article></aside>
+      </section>
+    </main>
+  </div>
+  <div class="modal-backdrop" id="modalBackdrop" hidden><form class="event-modal" id="eventForm"><button type="button" class="close-modal" id="closeModal">×</button><p class="eyebrow">EVENT INTAKE</p><h2>Log a new event</h2><label>Event title<input required placeholder="e.g. Road obstruction" /></label><label>Priority<select><option>Medium</option><option>High</option><option>Critical</option></select></label><label>Location<input required placeholder="Area or landmark" /></label><button class="ack-btn" type="submit">Add to live queue</button></form></div>
+  <script src="app.js"></script>
+</body>
+</html>
