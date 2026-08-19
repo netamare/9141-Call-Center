@@ -1,0 +1,4 @@
+import {NextRequest,NextResponse} from "next/server";
+import {connectDB} from "@/lib/db";import Department from "@/models/Department";import {requireUser,invalid} from "@/lib/api";
+export async function PATCH(r:NextRequest,{params}:{params:Promise<{id:string}>}){const a=await requireUser(["ADMIN"]);if(a.error)return a.error;try{await connectDB();const d=await Department.findByIdAndUpdate((await params).id,{$set:await r.json()},{new:true});return d?NextResponse.json(d):NextResponse.json({error:"Department not found"},{status:404});}catch{return invalid("Unable to update department");}}
+export async function DELETE(_:NextRequest,{params}:{params:Promise<{id:string}>}){const a=await requireUser(["ADMIN"]);if(a.error)return a.error;try{await connectDB();await Department.findByIdAndDelete((await params).id);return NextResponse.json({ok:true});}catch{return invalid("Unable to delete department");}}

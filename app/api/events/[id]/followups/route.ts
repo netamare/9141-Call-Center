@@ -1,0 +1,8 @@
+import {NextRequest,NextResponse} from "next/server";
+import {connectDB} from "@/lib/db";
+import FollowUp from "@/models/FollowUp";
+import Event from "@/models/Event";
+import {requireUser,invalid} from "@/lib/api";
+async function eventForUser(id:string,user:{id:string;role:string}){const event=await Event.findById(id);if(!event)return null;if(user.role==="OPERATOR"&&String(event.operator)!==user.id)return false;return event;}
+export async function GET(_:NextRequest,{params}:{params:Promise<{id:string}>}){const a=await requireUser();if(a.error)return a.error;try{await connectDB();const id=(await params).id, event=await eventForUser(id,a.user!);if(!event)return NextResponse.json({error:event===false?"You do not have access to this event":"Event not found"},{status:event===false?403:404});return NextResponse.json(await FollowUp.find({event:id}).populate("user","name").sort({createdAt:-1}).lean());}catch{return invalid("Unable to load follow-ups");}}
+export async function POST(r:NextRequest,{params}:{params:Promise<{id:string}>}){const a=await requireUser(["ADMIN","OPERATOR"]);if(a.error)return a.error;try{const b=await r.json();if(!b.note)return invalid("Follow-up note is required");await connectDB();const id=(await params).id, event=await eventForUser(id,a.user!);if(!event)return NextResponse.json({error:event===false?"You do not have access to this event":"Event not found"},{status:event===false?403:404});const f=await FollowUp.create({event:id,user:a.user!.id,note:b.note,nextFollowUp:b.nextFollowUp});await Event.findByIdAndUpdate(id,{$set:{followUpDate:b.nextFollowUp},$push:{history:{action:"Follow-up recorded",details:b.note,actor:a.user!.id}}});return NextResponse.json(f,{status:201});}catch{return invalid("Unable to record follow-up");}}

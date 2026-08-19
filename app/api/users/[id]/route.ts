@@ -1,0 +1,4 @@
+import {NextRequest,NextResponse} from "next/server";
+import {connectDB} from "@/lib/db";import User from "@/models/User";import {requireUser,invalid} from "@/lib/api";
+export async function PATCH(r:NextRequest,{params}:{params:Promise<{id:string}>}){const a=await requireUser(["ADMIN"]);if(a.error)return a.error;try{const b=await r.json();delete b.passwordHash;await connectDB();const u=await User.findByIdAndUpdate((await params).id,{$set:b},{new:true}).select("-passwordHash");return u?NextResponse.json(u):NextResponse.json({error:"User not found"},{status:404});}catch{return invalid("Unable to update user");}}
+export async function DELETE(_:NextRequest,{params}:{params:Promise<{id:string}>}){const a=await requireUser(["ADMIN"]);if(a.error)return a.error;try{await connectDB();await User.findByIdAndDelete((await params).id);return NextResponse.json({ok:true});}catch{return invalid("Unable to delete user");}}

@@ -1,0 +1,3 @@
+import {NextRequest,NextResponse} from "next/server";import {connectDB} from "@/lib/db";import Notification from "@/models/Notification";import {requireUser,invalid} from "@/lib/api";
+export async function GET(){const a=await requireUser();if(a.error)return a.error;try{await connectDB();return NextResponse.json(await Notification.find({user:a.user!.id}).sort({createdAt:-1}).limit(50).lean());}catch{return invalid("Unable to load notifications");}}
+export async function PATCH(r:NextRequest){const a=await requireUser();if(a.error)return a.error;try{await connectDB();const b=await r.json();await Notification.updateMany({_id:{$in:b.ids||[]},user:a.user!.id},{$set:{read:true}});return NextResponse.json({ok:true});}catch{return invalid("Unable to update notifications");}}

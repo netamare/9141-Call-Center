@@ -1,0 +1,4 @@
+import {NextRequest,NextResponse} from "next/server";
+import {connectDB} from "@/lib/db";import User from "@/models/User";import {requireUser,invalid} from "@/lib/api";
+export async function GET(){const a=await requireUser();if(a.error)return a.error;try{await connectDB();const u=await User.findById(a.user!.id).select("-passwordHash").populate("department","name").lean();return u?NextResponse.json(u):NextResponse.json({id:a.user!.id,name:a.user!.name,role:a.user!.role});}catch{return invalid("Unable to load profile");}}
+export async function PATCH(r:NextRequest){const a=await requireUser();if(a.error)return a.error;try{const b=await r.json();const update={name:b.name,email:b.email};if(!update.name||!update.email)return invalid("Name and email are required");await connectDB();const u=await User.findByIdAndUpdate(a.user!.id,{$set:update},{new:true}).select("-passwordHash");return NextResponse.json(u);}catch{return invalid("Unable to update profile");}}
