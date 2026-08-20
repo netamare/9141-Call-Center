@@ -12,7 +12,7 @@
     "verbatimModuleSyntax": false,
     "noEmit": true,
 
-    "skipLibCheck": true,
+    "skipLibCheck": true
     "strict": true,
     "noUnusedLocals": false,
     "noUnusedParameters": false,
