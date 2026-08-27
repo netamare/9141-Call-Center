@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Call Center 9141 — Event Escalation and Response Monitoring System
 
 ## Changelog (v9 — Real-time video streaming API)
@@ -342,3 +343,6 @@ voice, document), a logo on every page, and a live services dashboard.
    public form (in a couple of languages), dashboard services panel, and report
    management page → Results/testing → Conclusion and future work (SMS integration,
    CCTV/AI integration, mobile app).
+=======
+# 9141-Call-Center
+>>>>>>> 6a401bf6353d24bd52a9a7c537b993c9daa35507
