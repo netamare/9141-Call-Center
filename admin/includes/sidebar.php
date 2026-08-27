@@ -9,9 +9,12 @@ $can_escalate    = in_array($role, ['administrator', 'operator'], true);
 $can_departments = in_array($role, ['administrator'], true);
 $can_users       = in_array($role, ['administrator'], true);
 $can_settings    = in_array($role, ['administrator'], true);
-$can_reports     = in_array($role, ['administrator', 'supervisor'], true);
-// Room Camera (live, recorded, system upload / folder) — ALL roles have access
-$can_cameras     = true;
+// Reports: administrator, supervisor, AND operator
+$can_reports     = in_array($role, ['administrator', 'supervisor', 'operator'], true);
+// Performance + Analytics: administrator & supervisor only
+$can_analytics   = in_array($role, ['administrator', 'supervisor'], true);
+// Room Camera / AI Detection: administrator + camera_operator only
+$can_cameras     = in_array($role, ['administrator', 'camera_operator'], true);
 
 /**
  * Small inline icon per role, reused in the sidebar footer and in the
@@ -88,11 +91,13 @@ function role_icon_svg($role) {
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 15h6M9 11h6M9 19h3"/></svg>
             <span><?= t('nav_reports') ?></span>
         </a>
+        <?php endif; ?>
+
+        <?php if ($can_analytics): ?>
         <a class="nav-item <?= $activeNav === 'performance' ? 'active' : '' ?>" href="performance.php">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 15l4-6 4 3 5-8"/></svg>
             <span><?= t('nav_performance') ?></span>
         </a>
-        
         <a class="nav-item <?= $activeNav === 'analytics' ? 'active' : '' ?>" href="analytics.php">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 21H4a1 1 0 0 1-1-1V3"/><path d="M20 8l-5 5-3-3-4 4" /></svg>
             <span><?= t('nav_analytics') ?></span>

@@ -1,6 +1,6 @@
 <?php
 require __DIR__ . '/../includes/auth.php';
-require_role(['administrator', 'supervisor']);
+require_role(['administrator', 'supervisor', 'operator']);
 
 $history = [];
 try {

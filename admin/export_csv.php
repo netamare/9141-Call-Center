@@ -1,6 +1,6 @@
 <?php
 require __DIR__ . '/../includes/auth.php';
-require_role(['administrator', 'supervisor']);
+require_role(['administrator', 'supervisor', 'operator']);
 
 $role = current_role();
 $myDeptId = current_user_department_id();

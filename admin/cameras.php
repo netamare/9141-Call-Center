@@ -1,6 +1,6 @@
 <?php
 require __DIR__ . '/../includes/auth.php';
-require_role(['administrator', 'operator', 'supervisor', 'department_officer', 'camera_operator']);
+require_role(['administrator', 'camera_operator']);
 require __DIR__ . '/../includes/security.php';
 require __DIR__ . '/../includes/ai_detection.php';
 require __DIR__ . '/../includes/cameras.php';

@@ -6,6 +6,7 @@
 require __DIR__ . '/../includes/auth.php';
 require __DIR__ . '/../includes/security.php';
 require_role(['administrator', 'operator', 'supervisor']);
+require __DIR__ . '/lang.php';
 
 try {
     $feedback = $pdo->query("SELECT * FROM citizen_feedback ORDER BY created_at DESC LIMIT 100")->fetchAll();
