@@ -30,7 +30,31 @@ function verify_csrf() {
  * phone field itself decides whether it's required.
  */
 function is_valid_et_phone($phone) {
-    $phone = trim($phone);
+    $phone = normalize_et_phone($phone);
     if ($phone === '') return true;
-    return (bool) preg_match('/^(?:\+251|0)9\d{8}$/', $phone);
+    // After normalize: 09xxxxxxxx or 07xxxxxxxx
+    return (bool) preg_match('/^0(9|7)[0-9]{8}$/', $phone);
+}
+
+/**
+ * Normalize Ethiopian mobile to 0XXXXXXXXX (10 digits).
+ * Accepts: 09…, 07…, +2519…, +2517…, 2519…, 9…, 7…
+ */
+function normalize_et_phone($phone) {
+    $phone = trim((string)$phone);
+    if ($phone === '') return '';
+    $phone = preg_replace('/[\s\-\(\)]/', '', $phone);
+    // +2519… / 2519… → 09…
+    if (preg_match('/^\+?251([97][0-9]{8})$/', $phone, $m)) {
+        return '0' . $m[1];
+    }
+    // 9xxxxxxxx / 7xxxxxxxx (9 digits) → 09… / 07…
+    if (preg_match('/^([97][0-9]{8})$/', $phone, $m)) {
+        return '0' . $m[1];
+    }
+    // already 09… / 07…
+    if (preg_match('/^0([97][0-9]{8})$/', $phone, $m)) {
+        return '0' . $m[1];
+    }
+    return $phone; // return as-is; validator will reject if invalid
 }

@@ -1991,3 +1991,362 @@ footer.tag {
   font-size: 12px;
   color: var(--faint);
 }
+
+
+/* Public homepage action buttons — centered & slightly larger */
+.public-action-btns {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 12px 14px;
+  margin: 0;
+  text-align: center;
+}
+.public-action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 160px;
+  padding: 12px 20px !important;
+  font-size: 15px !important;
+  font-weight: 600;
+  border-radius: 12px !important;
+  text-align: center;
+  line-height: 1.3;
+}
+.public-action-btn--supervisor {
+  background: #0f766e !important;
+  color: #fff !important;
+  border-color: #0f766e !important;
+}
+.public-action-btn--supervisor:hover {
+  background: #0d9488 !important;
+  filter: brightness(1.05);
+}
+@media (max-width: 520px) {
+  .public-action-btn {
+    min-width: calc(50% - 10px);
+    flex: 1 1 calc(50% - 10px);
+    font-size: 14px !important;
+    padding: 11px 14px !important;
+  }
+}
+
+
+/* ------------------------------------------------------------------ */
+/* 18. Direct Messages (staff ↔ staff)                                */
+/* ------------------------------------------------------------------ */
+.dm-layout {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 16px;
+  min-height: 560px;
+  align-items: stretch;
+}
+@media (max-width: 900px) {
+  .dm-layout {
+    grid-template-columns: 1fr;
+    min-height: auto;
+  }
+}
+
+.dm-about {
+  background: var(--cyan-soft);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+  margin-bottom: 16px;
+  font-size: 13.5px;
+  color: var(--muted);
+  line-height: 1.55;
+}
+.dm-about strong {
+  color: var(--text);
+  font-family: var(--display);
+}
+.dm-about ul {
+  margin: 8px 0 0;
+  padding-left: 18px;
+}
+.dm-about li { margin-bottom: 2px; }
+
+.dm-sidebar {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  padding: 12px;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  max-height: 70vh;
+}
+.dm-sidebar h3 {
+  margin: 0 0 10px;
+  font-size: 14px;
+  font-family: var(--display);
+  font-weight: 700;
+  color: var(--text);
+}
+.dm-new-select {
+  width: 100%;
+  margin-bottom: 12px;
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--border);
+  background: var(--panel);
+  color: var(--text);
+  font-size: 13px;
+  font-family: var(--body);
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.dm-new-select:focus {
+  outline: none;
+  box-shadow: var(--focus-ring);
+  border-color: var(--cyan);
+}
+
+.dm-conv-item {
+  display: block;
+  padding: 10px 10px;
+  border-radius: var(--radius-sm);
+  margin-bottom: 6px;
+  border: 1px solid var(--border);
+  text-decoration: none;
+  color: inherit;
+  background: transparent;
+  transition: background 0.15s var(--ease), border-color 0.15s var(--ease);
+}
+.dm-conv-item:hover {
+  background: var(--panel-2);
+  border-color: var(--border-strong);
+  text-decoration: none;
+}
+.dm-conv-item.is-active {
+  background: var(--cyan-soft);
+  border-color: #BFDBFE;
+}
+.dm-conv-item .dm-conv-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+.dm-conv-item .dm-conv-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+}
+.dm-conv-item .dm-conv-meta {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+.dm-conv-item .dm-conv-preview {
+  font-size: 12px;
+  color: var(--faint);
+  margin-top: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dm-badge {
+  background: var(--red);
+  color: #fff;
+  border-radius: 999px;
+  padding: 1px 7px;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.4;
+  min-width: 18px;
+  text-align: center;
+}
+.dm-badge--header {
+  display: inline-block;
+  margin-left: 8px;
+  vertical-align: middle;
+  padding: 2px 8px;
+  font-size: 12px;
+}
+
+.dm-thread-panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  min-height: 520px;
+  max-height: 70vh;
+  overflow: hidden;
+}
+.dm-thread-header {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  background: var(--panel-2);
+}
+.dm-thread-header strong {
+  font-family: var(--display);
+  font-size: 15px;
+  color: var(--text);
+}
+.dm-thread-header .dm-role {
+  font-size: 12px;
+  color: var(--muted);
+  margin-left: 8px;
+}
+.dm-thread-empty {
+  padding: 48px 24px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.6;
+}
+.dm-thread-empty small {
+  display: block;
+  margin-top: 6px;
+  color: var(--faint);
+  font-size: 12.5px;
+}
+
+.dm-thread {
+  flex: 1;
+  overflow: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: var(--bg);
+}
+.dm-bubble-wrap {
+  display: flex;
+  flex-direction: column;
+  max-width: 75%;
+}
+.dm-bubble-wrap.mine { align-self: flex-end; }
+.dm-bubble-wrap.theirs { align-self: flex-start; }
+
+.dm-bubble {
+  padding: 9px 13px;
+  border-radius: 14px;
+  font-size: 13.5px;
+  line-height: 1.5;
+  border: 1px solid var(--border);
+  word-break: break-word;
+}
+.dm-bubble.mine {
+  background: var(--cyan);
+  color: #fff;
+  border-color: transparent;
+  border-bottom-right-radius: 4px;
+}
+.dm-bubble.theirs {
+  background: var(--panel);
+  color: var(--text);
+  border-bottom-left-radius: 4px;
+}
+.dm-meta {
+  font-size: 10.5px;
+  color: var(--faint);
+  margin-top: 3px;
+}
+.dm-bubble-wrap.mine .dm-meta { text-align: right; }
+.dm-bubble-wrap.theirs .dm-meta { text-align: left; }
+
+.dm-composer {
+  padding: 12px 16px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  gap: 10px;
+  align-items: flex-end;
+  background: var(--panel);
+}
+.dm-composer textarea {
+  flex: 1;
+  resize: vertical;
+  min-height: 44px;
+  max-height: 140px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--border);
+  background: var(--panel-2);
+  color: var(--text);
+  font-family: var(--body);
+  font-size: 13.5px;
+  line-height: 1.45;
+  transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+}
+.dm-composer textarea:focus {
+  outline: none;
+  box-shadow: var(--focus-ring);
+  border-color: var(--cyan);
+  background: var(--panel);
+}
+.dm-composer .btn {
+  flex-shrink: 0;
+  height: 44px;
+  padding: 0 18px;
+}
+
+.dm-page-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+html[data-theme="dark"] .dm-bubble.mine {
+  background: var(--cyan);
+  color: #0B1220;
+}
+html[data-theme="dark"] .dm-conv-item.is-active {
+  border-color: color-mix(in srgb, var(--cyan) 40%, var(--border));
+}
+
+/* ========== Direct Messages topbar icon (matches provided blue chat icon) ========== */
+.dm-icon-btn {
+  background: #2563EB !important;           /* solid blue circle look */
+  border-color: #2563EB !important;
+  color: #fff !important;
+  border-radius: 50% !important;            /* round like the screenshot */
+  width: 42px !important;
+  height: 42px !important;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.35);
+}
+.dm-icon-btn:hover {
+  background: #1D4ED8 !important;
+  border-color: #1D4ED8 !important;
+  color: #fff !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.45);
+}
+.dm-icon-btn svg {
+  width: 20px;
+  height: 20px;
+  fill: #fff !important;
+  stroke: none !important;
+}
+html[data-theme="dark"] .dm-icon-btn {
+  background: #3B82F6 !important;
+  border-color: #3B82F6 !important;
+}
+html[data-theme="dark"] .dm-icon-btn:hover {
+  background: #2563EB !important;
+}
+
+/* Ensure the red ping badge sits nicely on the blue circle */
+.dm-icon-btn .ping {
+  top: -4px;
+  right: -4px;
+  border-color: var(--panel);
+}
+.site-footer {
+    text-align: center;
+    padding: 20px 10px;
+    margin-top: 40px;
+    font-size: 13px;
+    color: #888;
+    border-top: 1px solid var(--border, #e5e7eb);
+}

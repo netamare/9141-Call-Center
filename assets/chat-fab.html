@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="om">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat FAB demo</title>
+  <link rel="stylesheet" href="chat-fab.css">
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: #f1f5f9;
+      font-family: system-ui, sans-serif;
+      padding: 40px 20px;
+      color: #334155;
+    }
+    h1 { font-size: 1.25rem; margin-bottom: 8px; }
+    p { color: #64748b; font-size: 0.95rem; }
+  </style>
+</head>
+<body>
+  <h1>Floating Chat Icon — bottom right</h1>
+  <p>Icon kan suuraa keessatti argamu. Gara mirgaa jalaa (footer mirga) ta'ee fixed — akka screenshot AfroMessage.</p>
+  <p>Waan biraa hin jiru — qofa kana.</p>
+
+  <!-- ===== COPY ONLY THIS BLOCK INTO YOUR PAGE ===== -->
+  <div class="chat-fab-wrap">
+    <a href="track.php#contact-supervisor" class="chat-fab" aria-label="Ergaa / Chat" title="Ergaa">
+      <!-- Chat bubble SVG (outline, white on blue) -->
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+      </svg>
+      <!-- Optional notification badge — hide with data-count="0" or empty -->
+      <!-- <span class="badge" data-count="1">1</span> -->
+    </a>
+  </div>
+  <!-- ===== END BLOCK ===== -->
+
+</body>
+</html>

@@ -1,7 +1,19 @@
 <?php
 
+// Staff Direct Messages helpers (for unread badges on every page)
+if (!function_exists('dm_unread_count')) {
+    @require_once __DIR__ . '/../../includes/direct_messages.php';
+}
+
 $role = current_role();
 $overdue_badge = $overdue_badge ?? 0;
+
+// Unread DM count, used by the sidebar's DM icon badge below AND by
+// render_topbar_controls() further down the page.
+$dmUnread = 0;
+if (function_exists('dm_unread_count') && isset($pdo) && !empty($_SESSION['user_id'])) {
+    $dmUnread = dm_unread_count($pdo, (int)$_SESSION['user_id']);
+}
 
 // Which roles can see which nav sections (per the project spec's role list + camera_operator)
 $can_new_event   = in_array($role, ['administrator', 'operator'], true);
@@ -15,6 +27,22 @@ $can_reports     = in_array($role, ['administrator', 'supervisor', 'operator'], 
 $can_analytics   = in_array($role, ['administrator', 'supervisor'], true);
 // Room Camera / AI Detection: administrator + camera_operator only
 $can_cameras     = in_array($role, ['administrator', 'camera_operator'], true);
+// Recent Activity: administrator, supervisor, operator only
+$can_activity    = in_array($role, ['administrator', 'supervisor', 'operator'], true);
+// Public citizen feedback/help from outside
+$can_citizen_msg = in_array($role, ['administrator', 'supervisor', 'operator'], true);
+
+// Count of new (unseen) citizen help messages from outside
+$citizenNewCount = 0;
+if ($can_citizen_msg && isset($pdo)) {
+    try {
+        $citizenNewCount = (int)$pdo->query(
+            "SELECT COUNT(*) FROM citizen_help WHERE status = 'new'"
+        )->fetchColumn();
+    } catch (Throwable $e) {
+        $citizenNewCount = 0;
+    }
+}
 
 /**
  * Small inline icon per role, reused in the sidebar footer and in the
@@ -119,7 +147,23 @@ function role_icon_svg($role) {
         </a>
         <?php endif; ?>
 
+        <?php if ($can_activity): ?>
+        <a class="nav-item <?= $activeNav === 'activity' ? 'active' : '' ?>" href="activity.php">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="10"/></svg>
+            <span><?= t('nav_activity') ?></span>
+        </a>
+        <?php endif; ?>
+
         <div class="nav-label">Public</div>
+        <?php if ($can_citizen_msg): ?>
+        <a class="nav-item <?= $activeNav === 'citizen_messages' ? 'active' : '' ?>" href="citizen_messages.php">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M8 10h8M8 14h5"/></svg>
+            <span><?= t('nav_citizen_messages') ?></span>
+            <?php if (!empty($citizenNewCount) && $citizenNewCount > 0): ?>
+                <span class="nav-badge" title="Ergaa haaraa"><?= $citizenNewCount > 99 ? '99+' : (int)$citizenNewCount ?></span>
+            <?php endif; ?>
+        </a>
+        <?php endif; ?>
         <a class="nav-item <?= $activeNav === 'notifications' ? 'active' : '' ?>" href="notifications.php">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
             <span><?= t('nav_notifications') ?></span>
@@ -136,7 +180,9 @@ function role_icon_svg($role) {
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20 15 15 0 0 1 0-20z"/></svg>
             <span><?= t('nav_public_form') ?></span>
         </a>
+
     </nav>
+
 
     <div class="sidebar-foot">
         <div class="user-line">
@@ -159,8 +205,19 @@ function role_icon_svg($role) {
  * script below stay in one place.
  */
 function render_topbar_controls() {
-    global $STRINGS;
+    global $STRINGS, $pdo, $dmUnread;
     $role = current_role();
+
+    // Ensure DM helpers are available for the unread badge
+    if (!function_exists('dm_unread_count')) {
+        @require_once __DIR__ . '/../../includes/direct_messages.php';
+    }
+    if (!isset($dmUnread)) {
+        $dmUnread = 0;
+        if (function_exists('dm_unread_count') && isset($pdo) && !empty($_SESSION['user_id'])) {
+            $dmUnread = dm_unread_count($pdo, (int)$_SESSION['user_id']);
+        }
+    }
     ?>
     <span class="role-chip role-<?= htmlspecialchars($role) ?>"><?= role_icon_svg($role) ?><span><?= t('role_' . $role) ?></span></span>
     <div class="icon-row">
@@ -177,9 +234,6 @@ function render_topbar_controls() {
         <button class="icon-btn" id="themeBtn" title="<?= t('theme_toggle') ?>">
             <svg id="themeIconMoon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
             <svg id="themeIconSun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none;"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
-        </button>
-        <button class="icon-btn" id="shareBtn" title="<?= t('nav_share') ?>">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 3.9M15.4 6.5L8.6 10.4"/></svg>
         </button>
     </div>
     <span class="status-pill"><span class="dot-live"></span> <?= t('system_live') ?></span>
@@ -199,24 +253,15 @@ document.addEventListener('DOMContentLoaded', function(){
         document.getElementById('themeIconSun').style.display = isLight ? 'block' : 'none';
     }
     syncThemeIcons();
-    document.getElementById('themeBtn').addEventListener('click', function(){
-        const next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
-        root.setAttribute('data-theme', next);
-        localStorage.setItem('cc9141_theme', next);
-        syncThemeIcons();
-    });
-
-    // ---------- Share button (native share sheet, falls back to copy link) ----------
-    document.getElementById('shareBtn').addEventListener('click', function(){
-        const url = window.location.origin + window.location.pathname.replace(/admin\/.*/, 'index.php');
-        if (navigator.share) {
-            navigator.share({ title: 'Call Center 9141', url: url }).catch(function(){});
-        } else {
-            navigator.clipboard.writeText(url).then(function(){
-                alert('<?= addslashes(t('share_copied')) ?>');
-            });
-        }
-    });
+    const themeBtn = document.getElementById('themeBtn');
+    if (themeBtn) {
+        themeBtn.addEventListener('click', function(){
+            const next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+            root.setAttribute('data-theme', next);
+            localStorage.setItem('cc9141_theme', next);
+            syncThemeIcons();
+        });
+    }
 
     // ---------- Notifications: poll every 15s, bell dropdown, operator alarm ----------
     const bellBtn = document.getElementById('bellBtn');
@@ -224,45 +269,84 @@ document.addEventListener('DOMContentLoaded', function(){
     const bellPing = document.getElementById('bellPing');
     const notifList = document.getElementById('notifList');
     let alarmPlayedFor = 0;
+    let _sirenCtx = null;
+    let _sirenStopTimer = null;
 
-    // Simple synthesized two-tone beep via WebAudio, so no audio asset is needed
-    function playAlarmBeep(){
+    function stopAmbulanceSiren() {
         try {
-            const ctx = new (window.AudioContext || window.webkitAudioContext)();
-            [880, 660].forEach(function(freq, i){
-                const osc = ctx.createOscillator();
-                const gain = ctx.createGain();
-                osc.frequency.value = freq;
-                osc.type = 'sine';
-                gain.gain.setValueAtTime(0.25, ctx.currentTime + i * 0.28);
-                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.28 + 0.25);
-                osc.connect(gain).connect(ctx.destination);
-                osc.start(ctx.currentTime + i * 0.28);
-                osc.stop(ctx.currentTime + i * 0.28 + 0.26);
-            });
-        } catch (e) { /* WebAudio unsupported — silently skip */ }
+            if (_sirenStopTimer) { clearTimeout(_sirenStopTimer); _sirenStopTimer = null; }
+            if (_sirenCtx) { _sirenCtx.close(); _sirenCtx = null; }
+            const btn = document.getElementById('stopSirenBtn');
+            if (btn) btn.style.display = 'none';
+        } catch (e) {}
     }
 
-    bellBtn.addEventListener('click', function(e){
-        e.stopPropagation();
-        notifPanel.classList.toggle('open');
-    });
-    document.addEventListener('click', function(){ notifPanel.classList.remove('open'); });
-    notifPanel.addEventListener('click', function(e){ e.stopPropagation(); });
+    // Ambulance-style siren ~30s when escalation (5+ min unhandled) fires
+    function playAlarmBeep(){
+        stopAmbulanceSiren();
+        try {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            _sirenCtx = ctx;
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sine';
+            gain.gain.value = 0.18;
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            let t = ctx.currentTime;
+            const cycle = 0.85;
+            const duration = 30; // only 30 seconds as requested
+            for (let i = 0; i < duration / cycle; i++) {
+                const t0 = t + i * cycle;
+                osc.frequency.setValueAtTime(600, t0);
+                osc.frequency.linearRampToValueAtTime(900, t0 + cycle / 2);
+                osc.frequency.linearRampToValueAtTime(600, t0 + cycle);
+            }
+            osc.start(t);
+            osc.stop(t + duration);
+            gain.gain.setValueAtTime(0.18, t + duration - 2);
+            gain.gain.linearRampToValueAtTime(0.001, t + duration);
+            _sirenStopTimer = setTimeout(stopAmbulanceSiren, (duration + 0.5) * 1000);
+            let btn = document.getElementById('stopSirenBtn');
+            if (!btn && document.body) {
+                btn = document.createElement('button');
+                btn.id = 'stopSirenBtn';
+                btn.type = 'button';
+                btn.textContent = '🔇 Stop siren';
+                btn.style.cssText = 'position:fixed;bottom:20px;right:20px;z-index:99999;padding:12px 18px;background:#dc2626;color:#fff;border:none;border-radius:10px;font-weight:700;cursor:pointer;box-shadow:0 4px 20px rgba(0,0,0,.3);';
+                btn.onclick = stopAmbulanceSiren;
+                document.body.appendChild(btn);
+            }
+            if (btn) btn.style.display = 'block';
+        } catch (e) {}
+    }
 
-    document.getElementById('markReadBtn').addEventListener('click', function(){
-        fetch('<?= (strpos($_SERVER['SCRIPT_NAME'], '/admin/') !== false ? '' : 'admin/') ?>api_notifications.php', {
-            method: 'POST', headers: {'Content-Type':'application/x-www-form-urlencoded'}, body: 'action=mark_read'
-        }).then(pollNotifications);
-    });
+    if (bellBtn && notifPanel) {
+        bellBtn.addEventListener('click', function(e){
+            e.stopPropagation();
+            notifPanel.classList.toggle('open');
+        });
+        document.addEventListener('click', function(){ notifPanel.classList.remove('open'); });
+        notifPanel.addEventListener('click', function(e){ e.stopPropagation(); });
+    }
+
+    const markReadBtn = document.getElementById('markReadBtn');
+    if (markReadBtn) {
+        markReadBtn.addEventListener('click', function(){
+            fetch('<?= (strpos($_SERVER['SCRIPT_NAME'], '/admin/') !== false ? '' : 'admin/') ?>api_notifications.php', {
+                method: 'POST', headers: {'Content-Type':'application/x-www-form-urlencoded'}, body: 'action=mark_read'
+            }).then(pollNotifications);
+        });
+    }
 
     function pollNotifications(){
+        if (!bellPing || !notifList) return;
         fetch('<?= (strpos($_SERVER['SCRIPT_NAME'], '/admin/') !== false ? '' : 'admin/') ?>api_notifications.php')
             .then(r => r.json())
             .then(function(data){
                 bellPing.style.display = data.count > 0 ? 'flex' : 'none';
                 bellPing.textContent = data.count > 99 ? '99+' : data.count;
-                bellBtn.classList.toggle('alarm-on', data.urgent);
+                if (bellBtn) bellBtn.classList.toggle('alarm-on', data.urgent);
 
                 if (data.urgent && data.count !== alarmPlayedFor) {
                     playAlarmBeep();
@@ -288,3 +372,36 @@ document.addEventListener('DOMContentLoaded', function(){
 });
 </script>
 
+<?php
+/* ============================================================
+   Floating chat FABs (admin)
+   1) Staff Direct Messages — blue
+   2) Citizen messages from outside (help/feedback) — same style
+   Badge shows count of new external citizen_help messages.
+   ============================================================ */
+?>
+<link rel="stylesheet" href="../assets/chat-fab.css">
+<div class="chat-fab-wrap">
+  <?php if (!empty($can_citizen_msg)): ?>
+  <a href="citizen_messages.php" class="chat-fab footer-fab footer-fab--message" id="citizenChatFab" aria-label="<?= htmlspecialchars(t('nav_citizen_messages')) ?>" title="<?= htmlspecialchars(t('nav_citizen_messages')) ?>">
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+    </svg>
+    <?php if (!empty($citizenNewCount) && $citizenNewCount > 0): ?>
+      <span class="badge" data-count="<?= (int)$citizenNewCount ?>" id="citizenChatFabBadge"><?= $citizenNewCount > 99 ? '99+' : (int)$citizenNewCount ?></span>
+    <?php else: ?>
+      <span class="badge" data-count="0" id="citizenChatFabBadge" style="display:none;">0</span>
+    <?php endif; ?>
+  </a>
+  <?php endif; ?>
+  <a href="direct_messages.php" class="chat-fab footer-fab footer-fab--message" id="adminChatFab" aria-label="<?= htmlspecialchars(t('nav_direct_messages')) ?>" title="<?= htmlspecialchars(t('nav_direct_messages')) ?>">
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+    </svg>
+    <?php if (!empty($dmUnread) && $dmUnread > 0): ?>
+      <span class="badge" data-count="<?= (int)$dmUnread ?>" id="adminChatFabBadge"><?= $dmUnread > 99 ? '99+' : (int)$dmUnread ?></span>
+    <?php else: ?>
+      <span class="badge" data-count="0" id="adminChatFabBadge" style="display:none;">0</span>
+    <?php endif; ?>
+  </a>
+</div>

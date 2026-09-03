@@ -8,7 +8,7 @@ $faqs = [
     ['q' => 'What does the overdue (SLA) badge mean?', 'a' => 'Each priority level has a target response time (configurable in Settings). If an event stays open past that target, it is flagged overdue on the dashboard.'],
     ['q' => 'How do I change my password?', 'a' => 'Ask an Administrator to reset it for you from the Users page — self-service password change is not yet available.'],
     ['q' => 'Why don\'t I see the Users or Settings menu?', 'a' => 'Those pages are restricted to the Administrator role, matching the system\'s access control policy.'],
-    ['q' => 'How does the operator alarm work?', 'a' => 'When a new high or critical priority event comes in, or one is escalated, Administrators and Operators get an urgent notification with an audible alarm until it is marked read.'],
+    ['q' => 'How does the operator alarm work?', 'a' => 'New reports create a silent in-app notification. If an event stays unhandled (status still "new") for the configured time (default 5 minutes), an escalating alert is sent. Only Operators hear a short ~30-second audible siren for that escalating alert. Administrators see the notification but do not get the sound.'],
 ];
 
 $activeNav = 'help';
@@ -48,5 +48,36 @@ $dir = t_raw('dir');
     </div>
 </main>
 </div>
+<footer style="
+    text-align: center;
+    padding: 22px 16px;
+    margin-top: 50px;
+    background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+    border-top: 1px solid #e2e8f0;
+    font-family: system-ui, -apple-system, sans-serif;
+">
+    <div style="
+        font-size: 13.5px;
+        font-weight: 600;
+        color: #334155;
+        letter-spacing: 0.3px;
+    ">
+        © 2026 MNAN. All Rights Reserved.
+    </div>
+    <div style="
+        margin-top: 6px;
+        font-size: 12px;
+        color: #64748b;
+    ">
+        Designed &amp; Developed by <span style="color:#0ea5e9; font-weight:600;">MNAN</span>
+    </div>
+    <div style="
+        margin-top: 8px;
+        font-size: 11px;
+        color: #94a3b8;
+    ">
+        Adama City Administration · Call Center 9141
+    </div>
+</footer>
 </body>
 </html>

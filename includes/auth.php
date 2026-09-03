@@ -2,8 +2,8 @@
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
-require __DIR__ . '/../config.php';
-require __DIR__ . '/lang.php';
+require_once __DIR__ . '/../config.php';
+require_once __DIR__ . '/lang.php';
 
 if (!isset($_SESSION['user_id'])) {
     header('Location: login.php');

@@ -27,10 +27,12 @@ function notify_roles($pdo, array $roles, $event_id, $type, $title, $message, $i
     }
 }
 
-/** Fired when a new event comes in — alerts operators/admins, urgently for high/critical priority. */
+/** Fired when a new event comes in — alerts operators/admins.
+ *  No immediate sound (is_urgent=false). Sound only after the 5-minute
+ *  stale escalation (check_stale_new_events) if still unhandled. */
 function notify_new_event($pdo, $event_id, $priority, $category_name, $tracking_code) {
-    $urgent = in_array($priority, ['high', 'critical'], true);
-    $title = ($urgent ? '🚨 ' : '') . "New $priority priority event";
+    $urgent = false; // never immediate alarm; wait for 5 min escalation
+    $title = "New $priority priority event";
     notify_roles($pdo, ['administrator', 'operator'], $event_id, 'new_event', $title, "$category_name — $tracking_code", $urgent);
 }
 
@@ -115,6 +117,8 @@ function mark_all_read($pdo, $user_id) {
  * (default 5 minutes, admin/settings.php -> operator_alert_minutes) fires an
  * urgent notification to operators and administrators, once per event
  * (events.stale_alert_sent guards against re-firing on every poll).
+ * This is the ONLY time the operator alarm sound plays (for ~30 seconds).
+ * New events themselves never set is_urgent, so no immediate sound.
  * Call this cheaply on each notification poll so it's effectively real-time
  * without needing a cron job.
  */
@@ -137,7 +141,7 @@ function check_stale_new_events($pdo) {
             $pdo, ['administrator', 'operator'], $r['id'], 'escalating_alert',
             "⏳ Escalating: unhandled {$minutes}+ min",
             ($r['category_name'] ?: 'Event') . ' — ' . $r['tracking_code'],
-            true // always urgent — this is the escalation itself
+            true // always urgent — this is the only sound trigger (30s for operators)
         );
         $mark->execute([$r['id']]);
     }

@@ -1,7 +1,8 @@
 <?php
 /**
  * includes/maps.php
- * GPS + mapping helpers — Adama city focused.
+ * GPS + mapping helpers — Adama city focused (eDAS / Digital Addressing Adama scope).
+ * NOT national Ethiopia — only Adama city, sub-cities, kebeles, nearby towns in bounds.
  * Leaflet + OpenStreetMap (no API key).
  *
  * Features:

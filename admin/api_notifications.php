@@ -18,9 +18,13 @@ if (in_array(current_role(), ['administrator', 'operator'], true)) {
 }
 
 $items = get_recent_notifications($pdo, $_SESSION['user_id']);
+// Sound/alarm only for operators (call center). Administrators see notifications
+// but do not get the audible siren, per requirement.
+$role = current_role();
+$playSound = ($role === 'operator') && has_unread_urgent($pdo, $_SESSION['user_id']);
 echo json_encode([
     'count' => get_unread_count($pdo, $_SESSION['user_id']),
-    'urgent' => has_unread_urgent($pdo, $_SESSION['user_id']),
+    'urgent' => $playSound,
     'items' => array_map(function ($n) {
         return [
             'id' => $n['id'],

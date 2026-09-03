@@ -4,7 +4,6 @@ require 'includes/lang.php';
 require 'includes/security.php';
 require 'includes/notifications.php';
 require 'includes/maps.php';
-
 $categories = $pdo->query("SELECT * FROM categories")->fetchAll();
 $cat_keys = ['cat_illegal', 'cat_security', 'cat_service', 'cat_emergency']; // matches insert order in schema.sql
 
@@ -29,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $category_id = (int) ($_POST['category_id'] ?? 0);
     $description = trim($_POST['description'] ?? '');
     $caller_name = trim($_POST['caller_name'] ?? '');
-    $caller_phone = trim($_POST['caller_phone'] ?? '');
+    $caller_phone = normalize_et_phone($_POST['caller_phone'] ?? '');
     $gender = in_array($_POST['gender'] ?? '', ['male','female']) ? $_POST['gender'] : 'unspecified';
     $address = trim($_POST['address'] ?? '');
     $location = trim($_POST['location'] ?? '');
@@ -157,9 +156,11 @@ $dir = t_raw('dir');
 
             <label><?= t('label_name') ?></label>
             <input type="text" name="caller_name">
-
-            <label><?= t('label_phone') ?> <span class="required-star">*</span></label>
-            <input type="tel" name="caller_phone" placeholder="<?= t('placeholder_phone') ?>" pattern="^(?:\+251|0)9\d{8}$" title="<?= htmlspecialchars(t_raw('phone_format_hint')) ?>" required>
+<label><?= t('label_phone') ?> <span class="required-star">*</span></label>
+<input type="tel" name="caller_phone" id="caller_phone" inputmode="tel" autocomplete="tel"
+       placeholder="09xxxxxxxx or 0722157790"
+       title="<?= htmlspecialchars(t_raw('phone_format_hint')) ?>"
+       required>
 
             <label><?= t('label_gender') ?></label>
             <select name="gender">
@@ -186,11 +187,12 @@ $dir = t_raw('dir');
         </form>
     </div>
     <div class="card" style="margin-top:16px;">
-        <p style="display:flex; flex-wrap:wrap; gap:10px; margin:0;">
-            <a class="btn" href="about.php">ℹ️ About 9141</a>
-            <a class="btn" href="citizen_feedback.php">💬 Feedback / Yaada</a>
-            <a class="btn" href="citizen_help.php">🆘 Gargaarsa</a>
-        </p>
+        <div class="public-action-btns">
+            <a class="btn public-action-btn" href="about.php">ℹ️ <?= t('btn_about_short') ?></a>
+            <a class="btn public-action-btn" href="citizen_feedback.php">💬 <?= t('btn_feedback_short') ?></a>
+            <a class="btn public-action-btn" href="citizen_help.php">🆘 <?= t('btn_help_short') ?></a>
+            <a class="btn public-action-btn public-action-btn--supervisor" href="track.php">📞 <?= t('contact supervisor') ?></a>
+        </div>
     </div>
 
     <div class="card about-card" style="margin-top:30px;">
@@ -247,5 +249,50 @@ function updateWordCount() {
     hint.style.color = words > WORD_LIMIT ? 'var(--red)' : '';
 }
 </script>
+
+<script>
+(function () {
+  var form = document.querySelector('form[method="post"]');
+  var phone = document.getElementById('caller_phone');
+  if (!form || !phone) return;
+  var etMsg = <?= json_encode(t_raw('phone_format_hint'), JSON_UNESCAPED_UNICODE) ?>;
+  function normalizeEt(v) {
+    v = (v || '').replace(/[\s\-\(\)]/g, '');
+    var m;
+    if ((m = v.match(/^\+?251([97]\d{8})$/))) return '0' + m[1];
+    if ((m = v.match(/^([97]\d{8})$/))) return '0' + m[1];
+    if ((m = v.match(/^0([97]\d{8})$/))) return '0' + m[1];
+    return v;
+  }
+  function isEt(v) {
+    return /^0[97]\d{8}$/.test(normalizeEt(v));
+  }
+  form.addEventListener('submit', function (e) {
+    var n = normalizeEt(phone.value);
+    if (!isEt(n)) {
+      e.preventDefault();
+      phone.setCustomValidity(etMsg);
+      phone.reportValidity();
+      return false;
+    }
+    phone.setCustomValidity('');
+    phone.value = n;
+  });
+  phone.addEventListener('input', function () { phone.setCustomValidity(''); });
+})();
+</script>
+
+<footer style="text-align:center; padding:22px 16px; margin-top:50px; background:linear-gradient(180deg,#f8fafc 0%,#f1f5f9 100%); border-top:1px solid #e2e8f0; font-family:system-ui,-apple-system,sans-serif;">
+    <div style="font-size:13.5px; font-weight:600; color:#334155; letter-spacing:0.3px;">
+        © 2026 MNAN. All Rights Reserved.
+    </div>
+    <div style="margin-top:6px; font-size:12px; color:#64748b;">
+        Designed &amp; Developed by <span style="color:#0ea5e9; font-weight:600;">MNAN</span>
+    </div>
+    <div style="margin-top:8px; font-size:11px; color:#94a3b8;">
+        Adama City Administration · Call Center 9141
+    </div>
+</footer>
+<?php require __DIR__ . "/includes/chat_fab.php"; ?>
 </body>
 </html>

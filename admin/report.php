@@ -3,6 +3,7 @@ require __DIR__ . '/../includes/auth.php';
 require __DIR__ . '/../includes/security.php';
 require __DIR__ . '/../includes/notifications.php';
 require __DIR__ . '/../includes/maps.php';
+require __DIR__ . '/../includes/supervisor_messages.php';
 
 $role = current_role();
 $myDeptId = current_user_department_id();
@@ -35,6 +36,7 @@ $can_update_status = in_array($role, ['administrator', 'operator'], true)
     || ($role === 'department_officer' && (int)$report['assigned_department_id'] === (int)$myDeptId);
 $can_edit_details = in_array($role, ['administrator', 'operator'], true);
 $can_followup = in_array($role, ['administrator', 'operator'], true);
+$can_supervisor_dm = ($role === 'supervisor'); // public DM reply: supervisor only
 
 $message = null;
 
@@ -96,7 +98,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     } elseif ($action === 'edit_details' && $can_edit_details) {
         $caller_name = trim($_POST['caller_name'] ?? '');
-        $caller_phone = trim($_POST['caller_phone'] ?? '');
+        $caller_phone = normalize_et_phone($_POST['caller_phone'] ?? '');
         if (!is_valid_et_phone($caller_phone)) {
             $message = t_raw('error_phone_format');
         } else {
@@ -122,6 +124,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         header('Location: dashboard.php?deleted=1');
         exit;
 
+    } elseif ($action === 'supervisor_dm' && !empty($can_supervisor_dm)) {
+        $dm = trim($_POST['supervisor_message'] ?? '');
+        $u = current_user();
+        if (supervisor_message_add($pdo, $id, $dm, (int)($u['id'] ?? $_SESSION['user_id'] ?? 0), $u['full_name'] ?? ($u['name'] ?? 'Supervisor'))) {
+            $message = t_raw('sup_dm_sent');
+            try {
+                require_once __DIR__ . '/../includes/activity.php';
+                log_activity($pdo, 'supervisor_dm', 'Supervisor DM on ' . ($report['tracking_code'] ?? ''), 'event', $id, mb_substr($dm, 0, 200));
+            } catch (Throwable $e) {}
+        } else {
+            $message = t_raw('error_required');
+        }
+
     } elseif ($action === 'add_followup' && $can_followup) {
         $followup_date = trim($_POST['followup_date'] ?? '');
         $remarks = trim($_POST['remarks'] ?? '');
@@ -139,6 +154,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $report = fetch_event($pdo, $id);
 }
 
+$supMsgs = supervisor_messages_for_event($pdo, $id);
+$citizenDms = array_values(array_filter($supMsgs, function($m) { return ($m['direction'] ?? 'to_public') === 'to_supervisor'; }));
+$outDms = array_values(array_filter($supMsgs, function($m) { return ($m['direction'] ?? 'to_public') === 'to_public'; }));
+$eventOldEnough = true; // any time
 $logs = $pdo->prepare("SELECT l.*, u.full_name FROM event_logs l LEFT JOIN users u ON u.id = l.changed_by WHERE l.event_id = ? ORDER BY l.changed_at DESC");
 $logs->execute([$id]);
 $logs = $logs->fetchAll();
@@ -225,7 +244,7 @@ $dir = t_raw('dir');
             <input type="hidden" name="action" value="edit_details">
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px;">
                 <div><label><?= t('label_name') ?></label><input type="text" name="caller_name" value="<?= htmlspecialchars($report['caller_name'] ?? '') ?>"></div>
-                <div><label><?= t('label_phone') ?></label><input type="tel" name="caller_phone" value="<?= htmlspecialchars($report['caller_phone'] ?? '') ?>" placeholder="<?= t('placeholder_phone') ?>" pattern="^(?:\+251|0)9\d{8}$" title="<?= htmlspecialchars(t_raw('phone_format_hint')) ?>"></div>
+                <div><label><?= t('label_phone') ?></label><input type="tel" name="caller_phone" value="<?= htmlspecialchars($report['caller_phone'] ?? '') ?>" placeholder="0988997733 ykn 0722998855" pattern="^(?:\+251|0)[97]\d{8}$" title="Lakkoofsa bilbilaa Itoophiyaa: 09xxxxxxxx ykn 07xxxxxxxx"></div>
                 <div><label><?= t('label_gender') ?></label>
                     <select name="gender">
                         <option value="unspecified" <?= $report['gender']==='unspecified'?'selected':'' ?>><?= t('gender_unspecified') ?></option>
@@ -329,6 +348,49 @@ $dir = t_raw('dir');
         <?php endif; ?>
     </div>
 
+    <?php if ($can_supervisor_dm): ?>
+    <div class="card" style="margin-top:16px;">
+        <h2 style="font-size:15px; margin-top:0;"><?= t('sup_dm_title') ?></h2>
+        <?php if (!$eventOldEnough): ?>
+            <p class="muted"><?= t('sup_dm_need_week') ?></p>
+            <p class="muted" style="font-size:12px;"><?= t('sup_dm_reported_at') ?>: <?= htmlspecialchars($report['created_at']) ?></p>
+        <?php else: ?>
+            <p class="muted" style="font-size:13px;"><?= t('sup_dm_hint') ?></p>
+            <form method="post">
+                <?= csrf_field() ?>
+                <input type="hidden" name="action" value="supervisor_dm">
+                <textarea name="supervisor_message" rows="3" required placeholder="<?= t_raw('sup_dm_placeholder') ?>" style="width:100%;"></textarea>
+                <button type="submit" style="margin-top:8px;"><?= t('sup_dm_send') ?></button>
+            </form>
+        <?php endif; ?>
+        <?php if (!empty($citizenDms)): ?>
+            <div style="margin-top:14px;">
+                <h3 style="font-size:13px; color:var(--amber);"><?= t('sup_dm_from_public_title') ?></h3>
+                <?php foreach ($citizenDms as $sm): ?>
+                    <div style="padding:10px 12px; border:1px solid var(--border); border-radius:8px; margin-top:8px; background:rgba(245,158,11,.08);">
+                        <div style="font-size:12px; color:var(--muted);">
+                            <?= htmlspecialchars(trim(($sm['citizen_name'] ?? '') . ' ' . ($sm['citizen_phone'] ?? '')) ?: t_raw('sup_dm_citizen_label')) ?>
+                            · <?= htmlspecialchars($sm['created_at']) ?>
+                        </div>
+                        <div style="margin-top:4px;"><?= nl2br(htmlspecialchars($sm['message'])) ?></div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        <?php endif; ?>
+        <?php if (!empty($outDms)): ?>
+            <div style="margin-top:14px;">
+                <h3 style="font-size:13px; color:var(--muted);"><?= t('sup_dm_history') ?></h3>
+                <?php foreach ($outDms as $sm): ?>
+                    <div style="padding:10px 12px; border:1px solid var(--border); border-radius:8px; margin-top:8px; background:var(--panel-2);">
+                        <div style="font-size:12px; color:var(--muted);"><?= htmlspecialchars($sm['supervisor_name'] ?? 'Supervisor') ?> · <?= htmlspecialchars($sm['created_at']) ?></div>
+                        <div style="margin-top:4px;"><?= nl2br(htmlspecialchars($sm['message'])) ?></div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        <?php endif; ?>
+    </div>
+    <?php endif; ?>
+
     <div class="card">
         <h2><?= t('audit_trail') ?></h2>
         <table>
@@ -359,5 +421,36 @@ $dir = t_raw('dir');
     <a class="btn" href="dashboard.php"><?= t('btn_back_home') ?></a>
 </main>
 </div>
+<footer style="
+    text-align: center;
+    padding: 22px 16px;
+    margin-top: 50px;
+    background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+    border-top: 1px solid #e2e8f0;
+    font-family: system-ui, -apple-system, sans-serif;
+">
+    <div style="
+        font-size: 13.5px;
+        font-weight: 600;
+        color: #334155;
+        letter-spacing: 0.3px;
+    ">
+        © 2026 MNAN. All Rights Reserved.
+    </div>
+    <div style="
+        margin-top: 6px;
+        font-size: 12px;
+        color: #64748b;
+    ">
+        Designed &amp; Developed by <span style="color:#0ea5e9; font-weight:600;">MNAN</span>
+    </div>
+    <div style="
+        margin-top: 8px;
+        font-size: 11px;
+        color: #94a3b8;
+    ">
+        Adama City Administration · Call Center 9141
+    </div>
+</footer>
 </body>
 </html>

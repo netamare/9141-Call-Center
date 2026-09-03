@@ -1,0 +1,137 @@
+/* ============================================================
+   Floating chat / message FAB — matches screenshot style
+   Solid blue circle, white chat bubble, fixed bottom-right
+   ============================================================ */
+
+.footer-fabs,
+.chat-fab-wrap {
+  position: fixed;
+  bottom: 28px;
+  right: 24px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+  pointer-events: none;
+}
+
+.footer-fabs > *,
+.chat-fab-wrap > * {
+  pointer-events: auto;
+}
+
+/* Common circle button — matches AfroMessage-style blue chat icon */
+.footer-fab,
+.chat-fab {
+  position: relative;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  color: #ffffff;
+  background: #2563eb;
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.45),
+              0 2px 6px rgba(0, 0, 0, 0.12);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.footer-fab:hover,
+.chat-fab:hover {
+  background: #1d4ed8;
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 8px 22px rgba(37, 99, 235, 0.5),
+              0 4px 10px rgba(0, 0, 0, 0.15);
+  color: #ffffff;
+}
+
+.footer-fab:active,
+.chat-fab:active {
+  transform: translateY(0) scale(0.97);
+}
+
+.footer-fab svg,
+.chat-fab svg {
+  width: 26px;
+  height: 26px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  display: block;
+  pointer-events: none;
+}
+
+/* Message (chat) — blue (default) */
+.footer-fab--message {
+  background: #2563eb;
+}
+.footer-fab--message:hover {
+  background: #1d4ed8;
+}
+
+/* Share — teal (optional second button) */
+.footer-fab--share {
+  background: #0d9488;
+}
+.footer-fab--share:hover {
+  background: #0f766e;
+}
+
+/* Red notification badge */
+.footer-fab .badge,
+.chat-fab .badge {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  background: #ef4444;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 700;
+  font-family: system-ui, -apple-system, sans-serif;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  border: 2.5px solid #ffffff;
+  box-shadow: 0 2px 6px rgba(239, 68, 68, 0.4);
+  pointer-events: none;
+}
+
+.footer-fab .badge:empty,
+.footer-fab .badge[data-count="0"],
+.chat-fab .badge:empty,
+.chat-fab .badge[data-count="0"] {
+  display: none;
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+  .footer-fabs,
+  .chat-fab-wrap {
+    bottom: 20px;
+    right: 16px;
+    gap: 10px;
+  }
+  .footer-fab,
+  .chat-fab {
+    width: 52px;
+    height: 52px;
+  }
+  .footer-fab svg,
+  .chat-fab svg {
+    width: 24px;
+    height: 24px;
+  }
+}

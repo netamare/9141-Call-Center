@@ -1,0 +1,148 @@
+/* Operator registration — tabs + voice/video widgets */
+
+.registration-tabs {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+    margin: 0 0 22px 0;
+    padding: 0;
+    border-bottom: 1px solid #e2e8f0;
+    background: transparent;
+}
+
+.registration-tabs .tab-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 18px 14px;
+    border: none;
+    background: transparent;
+    color: #64748b;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: color .2s, border-color .2s;
+    white-space: nowrap;
+}
+
+.registration-tabs .tab-btn:hover {
+    color: #0f172a;
+}
+
+.registration-tabs .tab-btn.active {
+    color: #2563eb;
+    border-bottom-color: #2563eb;
+    font-weight: 600;
+}
+
+.method-section {
+    display: none;
+}
+
+.method-section.active {
+    display: block;
+}
+
+/* Shared bottom block (GPS + department) always visible */
+.shared-fields {
+    margin-top: 22px;
+    padding-top: 18px;
+    border-top: 1px solid #e2e8f0;
+}
+
+/* Voice */
+.voice-container,
+.video-container {
+    max-width: 100%;
+}
+
+.voice-recorder,
+.video-recorder {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    margin-bottom: 16px;
+}
+
+.voice-status,
+.video-status {
+    font-size: 14px;
+    color: #64748b;
+    margin-bottom: 6px;
+}
+
+.voice-status.recording,
+.video-status.recording {
+    color: #dc2626;
+    font-weight: 600;
+}
+
+.voice-status.ready {
+    color: #16a34a;
+}
+
+.voice-timer {
+    font-size: 28px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    margin: 8px 0 14px;
+}
+
+.voice-controls,
+.video-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+}
+
+.btn-voice,
+.btn-video {
+    padding: 11px 20px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    background: #2563eb;
+    color: #fff;
+    font-size: 14px;
+}
+
+.btn-voice.stop,
+.btn-video.stop {
+    background: #dc2626;
+}
+
+.btn-voice.cancel,
+.btn-video.cancel {
+    background: #64748b;
+}
+
+.video-preview {
+    position: relative;
+    background: #000;
+    border-radius: 8px;
+    min-height: 200px;
+    overflow: hidden;
+}
+
+.video-preview video {
+    width: 100%;
+    max-height: 320px;
+    display: block;
+}
+
+.video-preview .video-status {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 10px;
+    background: rgba(0, 0, 0, 0.55);
+    color: #fff;
+    margin: 0;
+}

@@ -17,8 +17,10 @@ try {
 }
 
 // Generates a short unique tracking code so a caller/reporter can follow up, e.g. 9141-3F82A1
-function generate_tracking_code() {
-    return '9141-' . strtoupper(substr(bin2hex(random_bytes(4)), 0, 6));
+if (!function_exists('generate_tracking_code')) {
+    function generate_tracking_code() {
+        return '9141-' . strtoupper(substr(bin2hex(random_bytes(4)), 0, 6));
+    }
 }
 
 // --- File upload settings (images, video, voice/audio, documents) ---

@@ -210,8 +210,8 @@ $isAdmin = current_role() === 'administrator';
     <div class="top-actions" style="margin-bottom:16px;">
         <h2 style="margin:0;"><?= t('nav_cameras') ?></h2>
         <div class="topbar-controls">
-            <?php if ($isAdmin): ?>
-                <a href="cameras_manage.php" class="btn" style="padding:6px 12px;font-size:13px;background:var(--panel-2);margin-right:8px;"><?= t('cameras_manage_title') ?></a>
+            <?php if ($isAdmin || current_role() === 'camera_operator'): ?>
+                <a href="cameras_manage.php" class="btn" style="padding:6px 12px;font-size:13px;background:var(--panel-2);margin-right:8px;"><?= t('cameras_manage_title') ?> / GPS</a>
             <?php endif; ?>
             <?php render_topbar_controls(); render_lang_switcher(); ?>
         </div>
@@ -236,8 +236,6 @@ $isAdmin = current_role() === 'administrator';
             <form method="post" enctype="multipart/form-data" id="uploadMediaForm">
                 <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
                 <input type="hidden" name="action" value="upload_media">
-                <input type="hidden" name="latitude" id="upLat" value="">
-                <input type="hidden" name="longitude" id="upLng" value="">
 
                 <label><?= t('cameras_upload_file') ?> <span class="required-star">*</span></label>
                 <input type="file" name="media_file" accept="video/*,image/*,.mp4,.mov,.webm,.mkv,.avi,.m4v,.jpg,.jpeg,.png,.gif,.webp" required>
@@ -259,41 +257,19 @@ $isAdmin = current_role() === 'administrator';
                 </select>
 
                 <label><?= t('cameras_upload_location') ?> <span class="required-star">*</span></label>
-                <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
-                    <input type="text" name="location" id="upLocation" placeholder="Bakka / Location" required style="flex:1; min-width:200px;">
-                    <button type="button" class="btn" id="btnGps" style="margin-top:0; white-space:nowrap;"><?= t('cameras_upload_gps') ?></button>
-                </div>
+                <input type="text" name="location" id="upLocation" placeholder="Bakka / Location" required style="width:100%;">
 
-                <div style="display:flex; flex-wrap:wrap; gap:12px; margin-top:10px; align-items:flex-end;">
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:10px;">
                     <div>
-                        <label style="margin:0 0 4px; font-size:11px;"><?= t('cameras_gps_accuracy') ?></label>
-                        <select id="gpsAccuracyMode" style="padding:7px 10px; border-radius:8px; border:1px solid var(--border); background:var(--panel-2); color:var(--text); font-size:13px;">
-                            <option value="high" selected><?= t('cameras_gps_high') ?></option>
-                            <option value="balanced"><?= t('cameras_gps_balanced') ?></option>
-                            <option value="low"><?= t('cameras_gps_low') ?></option>
-                        </select>
+                        <label style="margin:0 0 4px; font-size:12px;">Latitude</label>
+                        <input type="text" name="latitude" id="upLat" value="" placeholder="8.541559" style="width:100%;">
                     </div>
                     <div>
-                        <label style="margin:0 0 4px; font-size:11px;"><?= t('cameras_gps_timeout') ?></label>
-                        <select id="gpsTimeout" style="padding:7px 10px; border-radius:8px; border:1px solid var(--border); background:var(--panel-2); color:var(--text); font-size:13px;">
-                            <option value="8000">8s</option>
-                            <option value="15000" selected>15s</option>
-                            <option value="25000">25s</option>
-                            <option value="40000">40s</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label style="margin:0 0 4px; font-size:11px;"><?= t('cameras_gps_maxage') ?></label>
-                        <select id="gpsMaxAge" style="padding:7px 10px; border-radius:8px; border:1px solid var(--border); background:var(--panel-2); color:var(--text); font-size:13px;">
-                            <option value="0" selected><?= t('cameras_gps_fresh') ?></option>
-                            <option value="30000">30s</option>
-                            <option value="60000">1 min</option>
-                            <option value="300000">5 min</option>
-                        </select>
+                        <label style="margin:0 0 4px; font-size:12px;">Longitude</label>
+                        <input type="text" name="longitude" id="upLng" value="" placeholder="39.270493" style="width:100%;">
                     </div>
                 </div>
-                <div id="gpsStatus" style="font-size:12px; color:var(--muted); margin-top:8px;"></div>
-                <div id="gpsAccuracyInfo" style="font-size:11px; color:var(--faint); margin-top:4px; display:none;"></div>
+                <p style="font-size:11px; color:var(--muted); margin:4px 0 8px;"> .</p>
 
                 <label><?= t('cameras_upload_desc') ?></label>
                 <textarea name="description" rows="3" placeholder="Ibsa..."></textarea>
@@ -301,81 +277,6 @@ $isAdmin = current_role() === 'administrator';
                 <button type="submit" class="btn" style="margin-top:18px;"><?= t('cameras_upload_btn') ?></button>
             </form>
         </div>
-        <script>
-        (function(){
-            const btn = document.getElementById('btnGps');
-            const status = document.getElementById('gpsStatus');
-            const accInfo = document.getElementById('gpsAccuracyInfo');
-            const latEl = document.getElementById('upLat');
-            const lngEl = document.getElementById('upLng');
-            const locEl = document.getElementById('upLocation');
-            const modeEl = document.getElementById('gpsAccuracyMode');
-            const timeoutEl = document.getElementById('gpsTimeout');
-            const maxAgeEl = document.getElementById('gpsMaxAge');
-            if (!btn) return;
-
-            function getGeoOptions() {
-                const mode = modeEl ? modeEl.value : 'high';
-                const timeout = timeoutEl ? parseInt(timeoutEl.value, 10) : 15000;
-                const maximumAge = maxAgeEl ? parseInt(maxAgeEl.value, 10) : 0;
-                return {
-                    enableHighAccuracy: mode === 'high',
-                    timeout: timeout,
-                    maximumAge: maximumAge
-                };
-            }
-
-            function showAccuracy(meters) {
-                if (!accInfo) return;
-                accInfo.style.display = 'block';
-                let level = '<?= t_raw('cameras_gps_acc_unknown') ?>';
-                let color = 'var(--faint)';
-                if (meters <= 20) { level = '<?= t_raw('cameras_gps_acc_excellent') ?>'; color = 'var(--green)'; }
-                else if (meters <= 50) { level = '<?= t_raw('cameras_gps_acc_good') ?>'; color = 'var(--cyan)'; }
-                else if (meters <= 150) { level = '<?= t_raw('cameras_gps_acc_fair') ?>'; color = 'var(--amber)'; }
-                else { level = '<?= t_raw('cameras_gps_acc_poor') ?>'; color = 'var(--red)'; }
-                accInfo.innerHTML = 'Accuracy: <strong style="color:' + color + '">±' + Math.round(meters) + ' m</strong> (' + level + ')';
-            }
-
-            btn.addEventListener('click', function(){
-                status.textContent = '…';
-                status.style.color = 'var(--muted)';
-                if (accInfo) accInfo.style.display = 'none';
-                if (!navigator.geolocation) {
-                    status.textContent = <?= json_encode(t_raw('cameras_upload_gps_fail')) ?>;
-                    status.style.color = 'var(--red)';
-                    return;
-                }
-                const opts = getGeoOptions();
-                navigator.geolocation.getCurrentPosition(function(pos){
-                    latEl.value = pos.coords.latitude.toFixed(6);
-                    lngEl.value = pos.coords.longitude.toFixed(6);
-                    const acc = pos.coords.accuracy || 0;
-                    status.textContent = <?= json_encode(t_raw('cameras_upload_gps_ok')) ?> + ' (' + latEl.value + ', ' + lngEl.value + ')';
-                    status.style.color = 'var(--green)';
-                    showAccuracy(acc);
-                    // Reverse geocode (Nominatim – free, no key)
-                    fetch('https://nominatim.openstreetmap.org/reverse?format=json&lat=' + latEl.value + '&lon=' + lngEl.value + '&zoom=16&addressdetails=1', {
-                        headers: { 'Accept-Language': 'om,en' }
-                    }).then(r => r.json()).then(data => {
-                        if (data && data.display_name && !locEl.value) {
-                            locEl.value = data.display_name.split(',').slice(0,3).join(',').trim();
-                        }
-                    }).catch(()=>{});
-                }, function(err){
-                    let msg = <?= json_encode(t_raw('cameras_upload_gps_fail')) ?>;
-                    if (err && err.code === 1) msg += ' (Permission denied)';
-                    else if (err && err.code === 2) msg += ' (Position unavailable)';
-                    else if (err && err.code === 3) msg += ' (Timeout – try higher timeout or balanced mode)';
-                    status.textContent = msg;
-                    status.style.color = 'var(--red)';
-                }, opts);
-            });
-
-            // Auto-try GPS on load with current settings
-            setTimeout(function(){ btn.click(); }, 700);
-        })();
-        </script>
 
     <?php elseif ($tab === 'live'): ?>
         <!-- ========== LIVE STREAMS ========== -->
@@ -389,8 +290,8 @@ $isAdmin = current_role() === 'administrator';
             <?php if (!$liveCams): ?>
                 <div class="card" style="grid-column:1/-1; text-align:center; padding:40px; color:var(--muted);">
                     <?= t('cameras_no_live') ?>
-                    <?php if ($isAdmin): ?>
-                        <div style="margin-top:12px;"><a href="cameras_manage.php" class="btn" style="background:var(--cyan);color:#fff;"><?= t('cameras_add') ?></a></div>
+                    <?php if ($isAdmin || current_role() === 'camera_operator'): ?>
+                        <div style="margin-top:12px;"><a href="cameras_manage.php" class="btn" style="background:var(--cyan);color:#fff;"><?= $isAdmin ? t('cameras_add') : 'GPS / Location galchuu' ?></a></div>
                     <?php endif; ?>
                 </div>
             <?php endif; ?>
@@ -657,5 +558,36 @@ $isAdmin = current_role() === 'administrator';
     <?php endif; ?>
 </main>
 </div>
+<footer style="
+    text-align: center;
+    padding: 22px 16px;
+    margin-top: 50px;
+    background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+    border-top: 1px solid #e2e8f0;
+    font-family: system-ui, -apple-system, sans-serif;
+">
+    <div style="
+        font-size: 13.5px;
+        font-weight: 600;
+        color: #334155;
+        letter-spacing: 0.3px;
+    ">
+        © 2026 MNAN. All Rights Reserved.
+    </div>
+    <div style="
+        margin-top: 6px;
+        font-size: 12px;
+        color: #64748b;
+    ">
+        Designed &amp; Developed by <span style="color:#0ea5e9; font-weight:600;">MNAN</span>
+    </div>
+    <div style="
+        margin-top: 8px;
+        font-size: 11px;
+        color: #94a3b8;
+    ">
+        Adama City Administration · Call Center 9141
+    </div>
+</footer>
 </body>
 </html>
