@@ -188,7 +188,8 @@ $dir = t_raw('dir');
     </div>
     <div class="card" style="margin-top:16px;">
         <div class="public-action-btns">
-            <a class="btn public-action-btn" href="about.php">ℹ️ <?= t('btn_about_short') ?></a>
+          <a class="btn public-action-btn" href="admin/login.php">🔑<?= t('Log In') ?></a>
+            <a class="btn public-action-btn" href="about.php">ℹ️<?= t('btn_about_short') ?></a>
             <a class="btn public-action-btn" href="citizen_feedback.php">💬 <?= t('btn_feedback_short') ?></a>
             <a class="btn public-action-btn" href="citizen_help.php">🆘 <?= t('btn_help_short') ?></a>
             <a class="btn public-action-btn public-action-btn--supervisor" href="track.php">📞 <?= t('contact supervisor') ?></a>
