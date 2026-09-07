@@ -128,6 +128,10 @@ function handle_voice_base64($base64_data, $event_id) {
     ensure_upload_directories();
 
     try {
+        // Accept raw base64 or full data URL (data:audio/webm;base64,...)
+        if (strpos($base64_data, ',') !== false) {
+            $base64_data = substr($base64_data, strpos($base64_data, ',') + 1);
+        }
         $data = base64_decode($base64_data);
         if ($data === false) {
             return null;
@@ -158,6 +162,9 @@ function handle_video_base64($base64_data, $event_id) {
     ensure_upload_directories();
 
     try {
+        if (strpos($base64_data, ',') !== false) {
+            $base64_data = substr($base64_data, strpos($base64_data, ',') + 1);
+        }
         $data = base64_decode($base64_data);
         if ($data === false) {
             return null;

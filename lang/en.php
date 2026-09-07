@@ -169,7 +169,7 @@ return [
     'label_password' => 'Password',
     'btn_login' => 'Log in',
     'login_error' => 'Invalid username or password.',
-    'login_default_hint' => 'Default: who are you admin/op/sup/dept off',
+    'login_default_hint' => 'who are you admin/op/sup/dept off',
     'login_locked' => 'Too many failed attempts. Try again in',
 
     // Site structure / navigation (per project specification)

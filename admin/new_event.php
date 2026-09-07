@@ -73,10 +73,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif (!$error && $registration_method === 'manual' && str_word_count($description) > $WORD_LIMIT) {
         $error = sprintf(t_raw('error_word_limit'), $WORD_LIMIT);
     } else {
+        // Do NOT replace media with text-only labels. Keep a short note;
+        // the actual voice/video file is saved and shown to departments.
         if ($description === '' && $registration_method === 'voice') {
-            $description = '[Voice report – operator]';
+            $description = 'Operator voice recording (play the audio attachment below).';
         } elseif ($description === '' && $registration_method === 'live_stream') {
-            $description = '[Live video report – operator]';
+            $description = 'Operator live video recording (play the video attachment below).';
         }
 
         $tracking_code = generate_tracking_code();
@@ -93,6 +95,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->execute([$tracking_code, $category_id, $caller_name ?: null, $caller_phone ?: null, $gender, $address ?: null, $location ?: null, $latitude, $longitude, $description, $priority, $status, $dept_id, $_SESSION['user_id']]);
         }
         $new_id = $pdo->lastInsertId();
+
+        // Also store voice/video in event_attachments so every department
+        // sees a playable player (not only the text description).
+        try {
+            if ($voice_file) {
+                $path = 'uploads/voice/' . $voice_file;
+                $full = __DIR__ . '/../' . $path;
+                $size = is_file($full) ? filesize($full) : 0;
+                $pdo->prepare("INSERT INTO event_attachments (event_id, file_path, original_name, file_type, file_size) VALUES (?, ?, ?, 'audio', ?)")
+                    ->execute([$new_id, $path, $voice_file, $size]);
+            }
+            if ($video_file) {
+                $path = 'uploads/video/' . $video_file;
+                $full = __DIR__ . '/../' . $path;
+                $size = is_file($full) ? filesize($full) : 0;
+                $pdo->prepare("INSERT INTO event_attachments (event_id, file_path, original_name, file_type, file_size) VALUES (?, ?, ?, 'video', ?)")
+                    ->execute([$new_id, $path, $video_file, $size]);
+            }
+        } catch (PDOException $e) {
+            error_log('event_attachments media insert failed: ' . $e->getMessage());
+        }
 
         $method_note = $registration_method === 'voice'
             ? 'Registered by voice input'

@@ -87,7 +87,6 @@ return [
     'label_password' => 'Qellitto',
     'btn_login' => 'Cula',
     'login_error' => 'Taamite migaq way qellitto ma-cakkiy.',
-    'login_default_hint' => 'Amol: admin / admin123 (cultek lakal soolisa)',
     'login_locked' => 'Xisxis wibaam. Wagto katta korkitem',
 
     // v7 ossime

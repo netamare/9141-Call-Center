@@ -87,7 +87,6 @@ return [
     'label_password' => 'መሕለፊ ቃል',
     'btn_login' => 'እቶ',
     'login_error' => 'ስም ተጠቃሚ ወይ መሕለፊ ቃል ግጉይ እዩ።',
-    'login_default_hint' => 'ነባሪ፦ admin / admin123 (ድሕሪ ምእታው ብኡብኡ ቀይሮ)',
     'login_locked' => 'ብዙሕ ዘይሰለጠ ፈተነ። ደጊምካ ፈትን',
 
     // ተወሳኺ ናይ v7

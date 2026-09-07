@@ -216,6 +216,26 @@ $dir = t_raw('dir');
         <?php render_location_view($report['latitude'], $report['longitude'], 'reportViewMap'); ?>
         <?php endif; ?>
 
+        <?php
+        // Operator-recorded voice/video stored on the event row (fallback player)
+        $eventVoice = $report['voice_file'] ?? null;
+        $eventVideo = $report['video_file'] ?? null;
+        $hasMediaAtt = false;
+        foreach ($attachments as $a) {
+            if (in_array($a['file_type'], ['audio', 'video'], true)) { $hasMediaAtt = true; break; }
+        }
+        ?>
+
+        <?php if ($eventVoice && !$hasMediaAtt): ?>
+        <p><strong>Operator voice recording:</strong></p>
+        <audio src="../uploads/voice/<?= htmlspecialchars($eventVoice) ?>" controls style="width:100%;max-width:420px;"></audio>
+        <?php endif; ?>
+
+        <?php if ($eventVideo && !$hasMediaAtt): ?>
+        <p><strong>Operator video recording:</strong></p>
+        <video src="../uploads/video/<?= htmlspecialchars($eventVideo) ?>" controls style="width:100%;max-width:480px;border-radius:8px;"></video>
+        <?php endif; ?>
+
         <?php if ($attachments): ?>
         <p><strong><?= t('track_attachments') ?>:</strong></p>
         <div class="attachment-grid">
@@ -225,9 +245,15 @@ $dir = t_raw('dir');
                         <img src="../<?= htmlspecialchars($att['file_path']) ?>" alt="<?= htmlspecialchars($att['original_name']) ?>" class="attachment-thumb">
                     </a>
                 <?php elseif ($att['file_type'] === 'video'): ?>
-                    <video src="../<?= htmlspecialchars($att['file_path']) ?>" controls style="width:220px;border-radius:8px"></video>
+                    <div style="margin-bottom:10px;">
+                        <video src="../<?= htmlspecialchars($att['file_path']) ?>" controls style="width:100%;max-width:480px;border-radius:8px"></video>
+                        <div class="muted" style="font-size:12px;"><?= htmlspecialchars($att['original_name']) ?></div>
+                    </div>
                 <?php elseif ($att['file_type'] === 'audio'): ?>
-                    <audio src="../<?= htmlspecialchars($att['file_path']) ?>" controls></audio>
+                    <div style="margin-bottom:10px;">
+                        <audio src="../<?= htmlspecialchars($att['file_path']) ?>" controls style="width:100%;max-width:420px;"></audio>
+                        <div class="muted" style="font-size:12px;"><?= htmlspecialchars($att['original_name']) ?></div>
+                    </div>
                 <?php else: ?>
                     <a class="attachment-file" href="../<?= htmlspecialchars($att['file_path']) ?>" target="_blank" rel="noopener">📄 <?= htmlspecialchars($att['original_name']) ?></a>
                 <?php endif; ?>

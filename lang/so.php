@@ -87,7 +87,6 @@ return [
     'label_password' => 'Furaha sirta ah',
     'btn_login' => 'Gal',
     'login_error' => 'Magaca isticmaalaha ama furaha sirta ah waa khalad.',
-    'login_default_hint' => 'Caadiga: admin / admin123 (isla markiiba beddel marka aad gasho)',
     'login_locked' => 'Isku day badan oo fashilmay. Isku day mar kale',
 
     // Ku darista v7
