@@ -2350,3 +2350,234 @@ html[data-theme="dark"] .dm-icon-btn:hover {
     color: #888;
     border-top: 1px solid var(--border, #e5e7eb);
 }
+/* ============================================================
+   19. CENTERED + RESPONSIVE (Desktop · Tablet · Mobile)
+   Content centered on all screen sizes — not desktop-only
+   ============================================================ */
+
+/* Main content column centered in available space */
+.shell .main {
+  width: 100%;
+  max-width: 1280px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Public pages (no sidebar): center the whole page content */
+body:not(:has(.shell)) {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+body:not(:has(.shell)) > header,
+body:not(:has(.shell)) > footer,
+body:not(:has(.shell)) > .site-footer {
+  width: 100%;
+}
+body:not(:has(.shell)) > .container,
+body:not(:has(.shell)) > main,
+body:not(:has(.shell)) > .main {
+  width: 100%;
+  max-width: 960px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Generic page wrappers */
+.container,
+.page-wrap,
+.content-wrap,
+.page-content {
+  width: 100%;
+  max-width: 960px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 20px;
+  padding-right: 20px;
+  box-sizing: border-box;
+}
+
+/* Cards / panels centered when alone */
+.card,
+.hero-card,
+.panel {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Forms stay readable and centered */
+form.card,
+.form-card,
+.auth-card {
+  width: 100%;
+  max-width: 560px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Headings and text blocks */
+.main h1, .main h2, .main .page-title,
+.container h1, .container h2 {
+  text-align: center;
+}
+.main .page-header,
+.page-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+.page-header .actions,
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+}
+
+/* Grids stay balanced and centered */
+.services-grid,
+.grid4,
+.camera-grid,
+.chart-grid {
+  justify-content: center;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Tables: horizontal scroll on small screens, block centered */
+.table-responsive,
+.table-wrap {
+  width: 100%;
+  max-width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Footer always centered */
+.site-footer,
+footer.tag {
+  width: 100%;
+  text-align: center;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* ---------- Tablet (portrait & landscape) ---------- */
+@media (min-width: 601px) and (max-width: 1024px) {
+  .shell .main {
+    max-width: 100%;
+    padding: 22px 20px 100px;
+  }
+  .container,
+  .page-wrap,
+  .content-wrap {
+    max-width: 720px;
+    padding-left: 18px;
+    padding-right: 18px;
+  }
+  .services-grid,
+  .grid4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+  }
+  header {
+    justify-content: center;
+    text-align: center;
+  }
+  header .brand {
+    justify-content: center;
+    width: 100%;
+  }
+}
+
+/* ---------- Mobile phones ---------- */
+@media (max-width: 600px) {
+  .shell .main {
+    max-width: 100%;
+    padding: 14px 12px 100px;
+  }
+  .container,
+  .page-wrap,
+  .content-wrap,
+  .page-content {
+    max-width: 100%;
+    margin: 12px auto;
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+  .card,
+  .hero-card,
+  .panel {
+    width: 100%;
+    max-width: 100%;
+    padding: 16px 14px;
+  }
+  form.card,
+  .form-card,
+  .auth-card {
+    max-width: 100%;
+  }
+  .services-grid,
+  .grid4,
+  .camera-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .main h1, .main h2,
+  .container h1, .container h2,
+  .hero-card h1 {
+    text-align: center;
+    font-size: clamp(1.15rem, 5vw, 1.4rem);
+  }
+  header {
+    padding: 10px 12px;
+    justify-content: center;
+  }
+  header .brand {
+    justify-content: center;
+    flex: 1;
+  }
+  .public-action-btns {
+    width: 100%;
+    justify-content: center;
+  }
+  .public-action-btn {
+    min-width: 100%;
+    flex: 1 1 100%;
+  }
+  /* Avoid content stuck to edges */
+  img, video, iframe {
+    max-width: 100%;
+    height: auto;
+  }
+}
+
+/* ---------- Large desktop: keep content centered, not stretched edge-to-edge ---------- */
+@media (min-width: 1400px) {
+  .shell .main {
+    max-width: 1320px;
+  }
+  .container {
+    max-width: 880px;
+  }
+}
+
+/* Safe areas (notched phones) */
+@supports (padding: max(0px)) {
+  .shell .main,
+  .container {
+    padding-left: max(12px, env(safe-area-inset-left));
+    padding-right: max(12px, env(safe-area-inset-right));
+  }
+  @media (max-width: 900px) {
+    .sidebar {
+      padding-bottom: max(10px, env(safe-area-inset-bottom));
+    }
+  }
+}
