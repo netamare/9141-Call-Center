@@ -88,6 +88,8 @@ return [
     'btn_help_short' => "Gargaarsa",
     'btn_feedback_short' => "Yaada",
     'btn_about_short' => "Waa'ee",
+    'btn_login_short' => 'Seeni',
+    'nav_notifications' => 'Beeksisa',
     'contact_supervisor_hint' => "Koodii hordoffii kee galchi. Yoo dhimmi kee amma hin furamne, Supervisor-tti yeroo kamiyyuu ergaa erguu dandeessa.",
 
     'track_case_status_title' => "Waa'ee dhimma kee",
@@ -396,6 +398,7 @@ return [
     'notif_mark_read' => 'Hunda dubbifame godhi',
     'notif_empty' => "Hanga ammaatti beeksisni hin jiru.",
     'theme_toggle' => 'Ifaa/Dukkanaa jijjiiri',
+    'night_mode' => 'Haala Halkanii',
     'system_live' => 'Moosaajiin Hojii irra Jira',
     'share_copied' => 'Liinkiin garagalfame!',
     'error_word_limit' => 'Maaloo ibsa kee gara jecha %d ykn gadiitti gabaabsi.',

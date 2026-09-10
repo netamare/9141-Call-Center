@@ -94,16 +94,12 @@ $dir = t_raw('dir');
 <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
-<header>
-    <div class="brand">
-        <img src="assets/logo-adama.png" alt="" class="logo">
-        <div>
-            <div class="brand-eyebrow">Adama City Administration</div>
-            <div class="brand-title"><?= t('citizen_help_heading_public') ?></div>
-        </div>
-    </div>
-    <?php render_lang_switcher(); ?>
-</header>
+<?php
+$header_title = t('citizen_help_heading_public');
+$header_subtitle = '';
+$active_nav = 'help';
+require __DIR__ . '/includes/public_header.php';
+?>
 <div class="container">
     <div class="card">
         <?php if ($ok): ?>

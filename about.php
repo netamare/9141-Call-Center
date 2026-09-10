@@ -21,17 +21,12 @@ $dir = t_raw('dir');
 <?php leaflet_assets(); ?>
 </head>
 <body>
-<header>
-    <div class="brand">
-        <img src="assets/logo-adama.png" alt="Adama" class="logo">
-        <div>
-            <div class="brand-eyebrow">Adama City Administration</div>
-            <div class="brand-title"><?= t('about_title') ?></div>
-            <div class="brand-subtitle">Call Center 9141</div>
-        </div>
-    </div>
-    <?php render_lang_switcher(); ?>
-</header>
+<?php
+$header_title = t('about_title');
+$header_subtitle = 'Call Center 9141';
+$active_nav = 'about';
+require __DIR__ . '/includes/public_header.php';
+?>
 <div class="container">
     <div class="card">
         <h2>📞 Call Center 9141 — Adaamaa</h2>
@@ -62,12 +57,7 @@ $dir = t_raw('dir');
             L.marker([8.541, 39.270]).addTo(m).bindPopup('Adama · 9141');
         })();
         </script>
-        <div class="public-action-btns" style="margin-top:20px;">
-            <a class="btn public-action-btn" href="index.php"><?= t('btn_back_home') ?></a>
-            <a class="btn public-action-btn" href="citizen_feedback.php">💬 Feedback</a>
-            <a class="btn public-action-btn" href="citizen_help.php">🆘 Gargaarsa</a>
-            <a class="btn public-action-btn public-action-btn--supervisor" href="track.php"><?= t('btn_contact_supervisor') ?></a>
-        </div>
+        
     </div>
 </div>
 <footer style="text-align:center; padding:22px 16px; margin-top:50px; background:linear-gradient(180deg,#f8fafc 0%,#f1f5f9 100%); border-top:1px solid #e2e8f0; font-family:system-ui,-apple-system,sans-serif;">

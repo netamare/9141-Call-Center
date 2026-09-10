@@ -92,10 +92,55 @@ $dir = t_raw('dir');
         <?php if ($error): ?><div class="alert error"><?= htmlspecialchars($error) ?></div><?php endif; ?>
         <form method="post">
             <?= csrf_field() ?>
-            <label><?= t('label_username') ?></label>
-            <input type="text" name="username" required autofocus>
-            <label><?= t('label_password') ?></label>
-            <input type="password" name="password" required>
+            <div class="auth-field">
+                <label for="loginUsername">
+                    <span class="auth-field-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M20 21a8 8 0 0 0-16 0"></path>
+                            <circle cx="12" cy="7" r="4"></circle>
+                        </svg>
+                    </span>
+                    <?= t('label_username') ?>
+                </label>
+                <div class="auth-input-wrap">
+                    <svg class="auth-input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M20 21a8 8 0 0 0-16 0"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                    <input id="loginUsername" type="text" name="username" autocomplete="username" required autofocus>
+                </div>
+            </div>
+
+            <div class="auth-field">
+                <label for="loginPassword">
+                    <span class="auth-field-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="4" y="10" width="16" height="11" rx="2"></rect>
+                            <path d="M8 10V7a4 4 0 0 1 8 0v3"></path>
+                        </svg>
+                    </span>
+                    <?= t('label_password') ?>
+                </label>
+                <div class="auth-input-wrap">
+                    <svg class="auth-input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <rect x="4" y="10" width="16" height="11" rx="2"></rect>
+                        <path d="M8 10V7a4 4 0 0 1 8 0v3"></path>
+                    </svg>
+                    <input id="loginPassword" type="password" name="password" autocomplete="current-password" required>
+                    <button type="button" class="password-toggle" id="passwordToggle" aria-label="Show password" aria-pressed="false">
+                        <svg class="password-eye password-eye-show" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"></path>
+                            <circle cx="12" cy="12" r="3"></circle>
+                        </svg>
+                        <svg class="password-eye password-eye-hide" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="m3 3 18 18"></path>
+                            <path d="M10.6 10.6a2 2 0 0 0 2.8 2.8"></path>
+                            <path d="M9.9 4.2A10.8 10.8 0 0 1 12 4c7 0 10 8 10 8a18.5 18.5 0 0 1-3.1 4.5"></path>
+                            <path d="M6.6 6.6C3.6 8.6 2 12 2 12s3 8 10 8a10.8 10.8 0 0 0 4.1-.8"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
             <button type="submit"><?= t('btn_login') ?></button>
         </form>
         <p style="font-size:12.5px;color:var(--faint);text-align:center;margin-top:16px;"><?= t('login_default_hint') ?></p>
@@ -133,5 +178,20 @@ $dir = t_raw('dir');
         Adama City Administration · Call Center 9141
     </div>
 </footer>
+<script>
+(function () {
+    var password = document.getElementById('loginPassword');
+    var toggle = document.getElementById('passwordToggle');
+    if (!password || !toggle) return;
+
+    toggle.addEventListener('click', function () {
+        var visible = password.type === 'text';
+        password.type = visible ? 'password' : 'text';
+        toggle.setAttribute('aria-pressed', visible ? 'false' : 'true');
+        toggle.setAttribute('aria-label', visible ? 'Show password' : 'Hide password');
+        toggle.classList.toggle('is-visible', !visible);
+    });
+})();
+</script>
 </body>
 </html>

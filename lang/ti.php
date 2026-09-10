@@ -240,6 +240,7 @@ return [
     'notif_mark_read' => 'ኩሉ ከም ዝተነበበ ግለጽ',
     'notif_empty' => 'ክሳብ ሕጂ ምልክታ የለን።',
     'theme_toggle' => 'ብሩህ / ጸልማት ቀይር',
+    'night_mode' => 'ናይ ለይቲ ስርዓት',
     'system_live' => 'ስርዓት ይሰርሕ ኣሎ',
     'share_copied' => 'መላገጺ ተቐዲሑ!',
     'error_word_limit' => 'በጃኹም መግለጺኹም ናብ %d ወይ ትሑት ቃላት ኣሕጽሩ።',

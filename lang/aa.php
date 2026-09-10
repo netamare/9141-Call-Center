@@ -240,6 +240,7 @@ return [
     'notif_mark_read' => 'Inkih Aqriime Iyya Baxis',
     'notif_empty' => 'Weelo warcisso matan.',
     'theme_toggle' => 'Ifaa / Dikaanâ Korkitis',
+    'night_mode' => 'Night Mode',
     'system_live' => 'Nidaam Farmoyta',
     'share_copied' => 'Limik Nakalime!',
     'error_word_limit' => 'Fanah iyyi sharaxsit %d qafah way ka-xabbi soolisaay.',

@@ -33,7 +33,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $caller_name = trim($_POST['caller_name'] ?? '');
     $caller_phone = normalize_et_phone($_POST['caller_phone'] ?? '');
     $gender = in_array($_POST['gender'] ?? '', ['male','female']) ? $_POST['gender'] : 'unspecified';
-    $address = trim($_POST['address'] ?? '');
+    $address_area = trim($_POST['address_area'] ?? '');
+    $address_details = trim($_POST['address'] ?? '');
+    $address = trim(implode(', ', array_filter([$address_area, $address_details])));
     $location = trim($_POST['location'] ?? '');
     $latitude = is_numeric($_POST['latitude'] ?? null) ? (float) $_POST['latitude'] : null;
     $longitude = is_numeric($_POST['longitude'] ?? null) ? (float) $_POST['longitude'] : null;
@@ -220,6 +222,18 @@ $dir = t_raw('dir');
                 <textarea name="description" id="descField" placeholder="<?= t('placeholder_description') ?>" oninput="updateWordCount()"></textarea>
                 <div class="hint" id="wordCountHint">0 / <?= $WORD_LIMIT ?> words</div>
 
+                <!-- Operator AI Copilot: suggests category/priority/address/department
+                     and flags possible duplicates from the description text.
+                     Rule/keyword based, runs locally — no API key, no auto-send. -->
+                <div class="ai-copilot" id="aiCopilotPanel">
+                    <div class="ai-copilot-head">
+                        <span class="ai-copilot-title">🤖 Operator AI Copilot</span>
+                        <button type="button" class="btn-ai" id="aiAnalyzeBtn" onclick="aiAnalyzeReport()">Analyze report</button>
+                    </div>
+                    <div class="ai-copilot-body" id="aiCopilotBody" style="display:none;"></div>
+                    <div class="ai-copilot-note">AI’n gorsa qofa kenna — category, priority, bakka fi department ofumaan hin galchamu. Suggestions ilaaltee "Apply suggestions" tuqi; kanaan booda ati mirkaneessitee "<?= t('btn_register_event') ?>" tuqxee qofa gabaasni ni galma’a.</div>
+                </div>
+
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px;">
                     <div><label><?= t('label_name') ?></label><input type="text" name="caller_name"></div>
                     <div><label><?= t('label_phone') ?></label><input type="tel" name="caller_phone" placeholder="0988997733 ykn 0722998855" pattern="^(?:\+251|0)[97]\d{8}$"></div>
@@ -231,7 +245,6 @@ $dir = t_raw('dir');
                         </select>
                     </div>
                     <div><label><?= t('label_location') ?></label><input type="text" name="location" placeholder="<?= t('placeholder_location') ?>"></div>
-                    <div><label><?= t('label_address') ?></label><input type="text" name="address"></div>
                 </div>
             </div>
 
@@ -323,6 +336,19 @@ $dir = t_raw('dir');
 
             <!-- Shared GPS + department (all methods) -->
             <div class="shared-fields">
+                <div style="margin-bottom:14px;">
+                    <label><?= t('label_address') ?></label>
+                    <select name="address_area" id="operatorAddressArea">
+                        <option value="">— Kutaa magaalaa Adaamaa filadhu / Select Adama area —</option>
+                        <?php foreach (adama_places() as $place): ?>
+                            <option value="<?= htmlspecialchars($place['name'], ENT_QUOTES, 'UTF-8') ?>">
+                                <?= htmlspecialchars($place['name']) ?>
+                            </option>
+                        <?php endforeach; ?>
+                        <option value="Other area in Adama / Kutaa biraa Adaamaa keessaa">Other area in Adama / Kutaa biraa Adaamaa keessaa</option>
+                    </select>
+                    <input type="text" name="address" placeholder="Street, house number, or extra details (optional)">
+                </div>
                 <?php render_location_picker('newEventMap'); ?>
                 <div style="margin-top:14px;">
                     <label><?= t('escalate_to_department') ?></label>
@@ -373,6 +399,122 @@ function updateWordCount() {
         hint.textContent = words + ' / ' + WORD_LIMIT + ' words';
         hint.style.color = words > WORD_LIMIT ? 'var(--red)' : '';
     }
+}
+
+/* ---------------------------------------------------------------- *
+ * Operator AI Copilot                                                *
+ * Suggests fields from the description text. Never submits anything  *
+ * on its own — the operator must press "Apply suggestions", then      *
+ * still press the normal register button themselves.                 *
+ * ---------------------------------------------------------------- */
+var aiLastResult = null;
+
+function aiEsc(s) {
+    var d = document.createElement('div');
+    d.textContent = s == null ? '' : String(s);
+    return d.innerHTML;
+}
+
+function aiChip(label, value, confidence) {
+    if (!value) {
+        return '<span class="ai-field-row"><span class="ai-field-label">' + aiEsc(label) + '</span>' +
+               '<span class="ai-chip review">Review manually</span></span>';
+    }
+    return '<span class="ai-field-row"><span class="ai-field-label">' + aiEsc(label) + '</span>' +
+           '<span class="ai-chip ' + (confidence === 'high' ? 'ok' : 'maybe') + '">' + aiEsc(value) + '</span></span>';
+}
+
+function aiAnalyzeReport() {
+    var desc = document.getElementById('descField').value.trim();
+    var body = document.getElementById('aiCopilotBody');
+    var btn = document.getElementById('aiAnalyzeBtn');
+    if (!desc) {
+        body.style.display = 'block';
+        body.innerHTML = '<div class="ai-empty">Duraan dursii description barreessi, ergasii Analyze report tuqi.</div>';
+        return;
+    }
+    var csrf = document.querySelector('#eventForm input[name="csrf_token"]').value;
+    var addressArea = document.getElementById('operatorAddressArea').value;
+
+    btn.disabled = true;
+    btn.textContent = 'Analyzing…';
+    body.style.display = 'block';
+    body.innerHTML = '<div class="ai-empty">🔎 Analyzing…</div>';
+
+    var fd = new FormData();
+    fd.append('csrf_token', csrf);
+    fd.append('description', desc);
+    fd.append('address_area', addressArea);
+
+    fetch('api_ai_copilot.php', { method: 'POST', body: fd })
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+            btn.disabled = false;
+            btn.textContent = 'Analyze report';
+            if (!data.ok) {
+                body.innerHTML = '<div class="ai-empty">Xiinxaluun hin milkoofne. Ammas yaali.</div>';
+                return;
+            }
+            aiLastResult = data;
+
+            var html = '';
+            html += '<div class="ai-summary">"' + aiEsc(data.summary) + '"</div>';
+            html += aiChip('Category', data.category && data.category.name, data.category && data.category.confidence);
+            html += aiChip('Priority', data.priority && data.priority.value, data.priority && data.priority.confidence);
+            html += aiChip('Address', data.address && data.address.name, data.address && data.address.confidence);
+            html += aiChip('Department', data.department && data.department.name, data.department && data.department.confidence);
+
+            if (data.duplicates && data.duplicates.length) {
+                html += '<div class="ai-dup-list"><div class="ai-dup-title">⚠️ Gabaasa wal-fakkaatu argame:</div>';
+                data.duplicates.forEach(function (d) {
+                    html += '<div class="ai-dup-item"><span class="mono">' + aiEsc(d.tracking_code) + '</span>' +
+                            ' — ' + aiEsc(d.address || '—') + ' (' + aiEsc(d.created_at) + ')</div>';
+                });
+                html += '</div>';
+            }
+
+            var canApply = (data.category && data.category.id) || (data.priority && data.priority.value) ||
+                            (data.address && data.address.name) || (data.department && data.department.id);
+            if (canApply) {
+                html += '<button type="button" class="btn-ai apply" onclick="aiApplySuggestions()">✓ Apply suggestions</button>';
+            }
+
+            body.innerHTML = html;
+        })
+        .catch(function () {
+            btn.disabled = false;
+            btn.textContent = 'Analyze report';
+            body.innerHTML = '<div class="ai-empty">Dogoggora network. Ammas yaali.</div>';
+        });
+}
+
+function aiApplySuggestions() {
+    if (!aiLastResult) return;
+    var data = aiLastResult;
+
+    if (data.category && data.category.id) {
+        var catSel = document.querySelector('select[name="category_id"][data-for="manual"]');
+        if (catSel) catSel.value = data.category.id;
+    }
+    if (data.priority && data.priority.value) {
+        var prSel = document.querySelector('select[name="priority"][data-for="manual"]');
+        if (prSel) prSel.value = data.priority.value;
+    }
+    if (data.address && data.address.name) {
+        var addrSel = document.getElementById('operatorAddressArea');
+        if (addrSel) {
+            for (var i = 0; i < addrSel.options.length; i++) {
+                if (addrSel.options[i].value === data.address.name) { addrSel.selectedIndex = i; break; }
+            }
+        }
+    }
+    if (data.department && data.department.id) {
+        var deptSel = document.querySelector('select[name="department_id"]');
+        if (deptSel) deptSel.value = data.department.id;
+    }
+
+    var btns = document.querySelectorAll('.btn-ai.apply');
+    btns.forEach(function (b) { b.textContent = '✓ Applied'; b.disabled = true; });
 }
 </script>
 <script src="../assets/call-center-voice-video.js"></script>

@@ -240,6 +240,7 @@ return [
     'notif_mark_read' => 'Calaamadi dhammaan in la akhriyay',
     'notif_empty' => 'Wali ogeysiis ma jiro.',
     'theme_toggle' => 'Beddel Iftiin / Madow',
+    'night_mode' => 'Habka Habeenka',
     'system_live' => 'Nidaamku Waa Firfircoon',
     'share_copied' => 'Linkiga waa la koobiyeeyay!',
     'error_word_limit' => 'Fadlan ka gaabi sharraxaaddaada ilaa %d eray ama ka yar.',

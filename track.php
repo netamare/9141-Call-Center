@@ -96,17 +96,12 @@ $dir = t_raw('dir');
 <?php if ($report && $report['latitude'] !== null && $report['longitude'] !== null) leaflet_assets(); ?>
 </head>
 <body>
-<header>
-    <div class="brand">
-        <img src="assets/logo-adama.png" alt="Adama City Administration emblem" class="logo">
-        <div>
-            <div class="brand-eyebrow">Adama City Administration</div>
-            <div class="brand-title"><?= t('track_title') ?></div>
-            <div class="brand-subtitle"><?= t('site_subtitle') ?></div>
-        </div>
-    </div>
-    <?php render_lang_switcher(); ?>
-</header>
+<?php
+$header_title = t('track_heading');
+$header_subtitle = '';
+$active_nav = 'supervisor';
+require __DIR__ . '/includes/public_header.php';
+?>
 <div class="container">
     <div class="card">
         <?php if ($code === ''): ?>

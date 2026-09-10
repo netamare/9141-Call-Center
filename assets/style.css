@@ -32,9 +32,10 @@
   --muted: #475569;
   --faint: #94A3B8;
 
-  --display: 'Noto Sans Ethiopic', 'Inter', 'Segoe UI', system-ui, sans-serif;
-  --body:    'Noto Sans Ethiopic', 'Inter', 'Segoe UI', system-ui, sans-serif;
-  --mono:    'JetBrains Mono', Consolas, ui-monospace, monospace;
+  /* Tahoma is excellent for Afaan Oromoo / Latin UI clarity; Noto for Ethiopic scripts */
+  --display: 'Noto Sans Ethiopic', 'Inter', 'Tahoma', 'Segoe UI', system-ui, sans-serif;
+  --body:    'Noto Sans Ethiopic', 'Inter', 'Tahoma', 'Segoe UI', system-ui, sans-serif;
+  --mono:    'JetBrains Mono', Consolas, 'Courier New', ui-monospace, monospace;
 
   --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.04), 0 2px 8px rgba(15, 23, 42, 0.04);
   --shadow-md: 0 8px 24px rgba(15, 23, 42, 0.07), 0 2px 8px rgba(15, 23, 42, 0.04);
@@ -94,7 +95,7 @@ html {
 ::-webkit-scrollbar-track { background: transparent; }
 
 body {
-  font-family: var(--body);
+  font-family: var(--body);   /* Noto + Inter + Tahoma */
   background-color: var(--bg);
   margin: 0;
   color: var(--text);
@@ -104,7 +105,8 @@ body {
   min-height: 100vh;
   line-height: 1.6;
   font-size: 15px;
-  letter-spacing: -0.01em;
+  font-weight: 400;
+  letter-spacing: -0.011em;   /* refined lettering */
   position: relative;
 }
 
@@ -154,32 +156,60 @@ html[data-theme="dark"] ::selection {
 }
 
 /* ------------------------------------------------------------------ */
-/* 3. Typography                                                      */
+/* 3. Typography — bold / italic / Tahoma hierarchy                   */
 /* ------------------------------------------------------------------ */
 h1, h2, h3, h4 {
   font-family: var(--display);
-  font-weight: 800;
+  font-weight: 800;          /* bold */
   color: var(--text);
-  letter-spacing: -0.02em;
-  line-height: 1.3;
+  letter-spacing: -0.025em;  /* tighter lettering for headings */
+  line-height: 1.28;
   margin: 0 0 8px;
 }
-h1 { font-size: 24px; }
+h1 { font-size: 24px; font-weight: 800; }
 h2 { font-size: 20px; font-weight: 800; }
 h3 { font-size: 15px; font-weight: 700; }
 h4 { font-size: 13px; font-weight: 700; }
 
-.mono { font-family: var(--mono); }
-.muted { color: var(--muted); font-weight: 400; }
+.mono {
+  font-family: var(--mono);
+  letter-spacing: 0.01em;
+}
+.muted {
+  color: var(--muted);
+  font-weight: 400;
+  letter-spacing: 0.005em;
+}
 .hint {
   font-size: 12.5px;
   color: var(--faint);
   margin-top: 5px;
-  font-style: italic;
+  font-style: italic;        /* italic */
   font-weight: 400;
+  letter-spacing: 0.01em;
 }
-strong, b { font-weight: 700; }
-em, i { font-style: italic; }
+
+/* Explicit bold & italic — ensure correct weight/style everywhere */
+strong, b {
+  font-weight: 700;          /* bold */
+  letter-spacing: -0.01em;
+}
+em, i {
+  font-style: italic;        /* italic */
+}
+
+/* Utility classes for lettering style control */
+.fw-400 { font-weight: 400; }
+.fw-500 { font-weight: 500; }
+.fw-600 { font-weight: 600; }
+.fw-700 { font-weight: 700; }   /* bold */
+.fw-800 { font-weight: 800; }   /* extra-bold */
+.italic { font-style: italic; }
+.not-italic { font-style: normal; }
+.tracking-tight { letter-spacing: -0.025em; }
+.tracking-normal { letter-spacing: 0; }
+.tracking-wide { letter-spacing: 0.04em; }
+.tracking-wider { letter-spacing: 0.08em; }
 
 /* ------------------------------------------------------------------ */
 /* 4. Layout — Shell / Sidebar / Main                                 */
@@ -417,10 +447,19 @@ header {
   align-items: center;
   flex-wrap: wrap;
   gap: 12px;
-  position: sticky;
+  position: fixed;
   top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  box-sizing: border-box;
   z-index: 60;
   box-shadow: var(--shadow-sm);
+}
+
+/* Keep page content from sliding under the now-fixed header. */
+body:not(:has(header.public-header)):has(> header) {
+  padding-top: 78px;
 }
 
 header .brand {
@@ -1495,13 +1534,14 @@ tr:hover td { background: var(--panel-2); }
   margin-top: 20px;
 }
 
-.public-nav {
+/* Legacy .public-nav (unused on public-header pages; kept for safety) */
+.public-nav:not(.public-header .public-nav) {
   display: flex;
   align-items: center;
   gap: 6px;
   flex-wrap: wrap;
 }
-.public-nav a {
+.public-nav:not(.public-header .public-nav) a {
   font-size: 13px;
   font-weight: 700;
   text-decoration: none;
@@ -1510,7 +1550,7 @@ tr:hover td { background: var(--panel-2); }
   border-radius: 8px;
   transition: color 0.15s, background 0.15s;
 }
-.public-nav a:hover {
+.public-nav:not(.public-header .public-nav) a:hover {
   color: var(--cyan);
   background: var(--cyan-soft);
   text-decoration: none;
@@ -1750,6 +1790,215 @@ tr:hover td { background: var(--panel-2); }
   width: 100%;
   text-align: center;
   margin-top: 20px;
+}
+
+/* Login fields: compact icons + accessible password visibility toggle. */
+.auth-field {
+  margin-top: 16px;
+}
+.auth-field label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 0 0 6px;
+}
+.auth-field-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 17px;
+  height: 17px;
+  color: var(--cyan);
+}
+.auth-field-icon svg {
+  width: 16px;
+  height: 16px;
+}
+.auth-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.auth-input-wrap input {
+  padding-left: 42px;
+  padding-right: 46px;
+}
+.auth-input-icon {
+  position: absolute;
+  left: 14px;
+  width: 18px;
+  height: 18px;
+  color: var(--faint);
+  pointer-events: none;
+  z-index: 1;
+}
+.password-toggle {
+  position: absolute;
+  right: 7px;
+  top: 50%;
+  width: 34px;
+  height: 34px;
+  min-height: 34px;
+  margin: 0;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--faint);
+  box-shadow: none;
+  transform: translateY(-50%);
+}
+.password-toggle:hover,
+.password-toggle:focus-visible {
+  background: var(--cyan-soft);
+  color: var(--cyan);
+  box-shadow: none;
+  transform: translateY(-50%);
+}
+.password-toggle:active {
+  transform: translateY(-50%) scale(0.95);
+}
+.password-eye {
+  width: 18px;
+  height: 18px;
+}
+.password-eye-hide {
+  display: none;
+}
+.password-toggle.is-visible .password-eye-show {
+  display: none;
+}
+.password-toggle.is-visible .password-eye-hide {
+  display: block;
+}
+
+/* Final login-field correction: keep icons clear of the input text. */
+.auth-input-wrap {
+  position: relative !important;
+  isolation: isolate;
+}
+.auth-input-wrap input,
+.auth-input-wrap input[type="text"],
+.auth-input-wrap input[type="password"] {
+  position: relative;
+  z-index: 0;
+  width: 100%;
+  min-height: 48px;
+  padding-left: 50px !important;
+  padding-right: 54px !important;
+  background: var(--panel) !important;
+  color: var(--text) !important;
+  border: 1.5px solid var(--border) !important;
+  border-radius: 12px;
+}
+.auth-input-wrap input:focus {
+  background: var(--panel) !important;
+  border-color: var(--cyan) !important;
+  box-shadow: var(--focus-ring) !important;
+}
+.auth-input-icon {
+  left: 16px !important;
+  top: 50%;
+  width: 19px !important;
+  height: 19px !important;
+  color: var(--cyan) !important;
+  transform: translateY(-50%);
+  z-index: 2;
+}
+.password-toggle {
+  right: 9px !important;
+  z-index: 3;
+  color: var(--muted) !important;
+}
+.password-toggle:hover,
+.password-toggle:focus-visible {
+  color: var(--cyan) !important;
+  background: var(--cyan-soft) !important;
+}
+
+/* Public menu: equal button sizing, one background, and clearer spacing. */
+header.public-header .public-nav-inner {
+  gap: 12px !important;
+  padding: 12px !important;
+}
+
+header.public-header .public-nav-inner .public-nav-btn,
+header.public-header .public-nav-inner .public-nav-btn--home,
+header.public-header .public-nav-inner .public-nav-btn--supervisor,
+header.public-header .public-nav-inner .public-nav-btn--notif,
+header.public-header .public-nav-inner .public-nav-btn--theme {
+  width: 100% !important;
+  min-width: 0 !important;
+  height: 46px !important;
+  min-height: 46px !important;
+  margin: 0 !important;
+  padding: 0 15px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 9px !important;
+  border-radius: 999px !important;
+  background: #1E3A8A !important;
+  border: 1px solid #1E3A8A !important;
+  color: #FFFFFF !important;
+  font-size: 13px !important;
+  font-weight: 650 !important;
+  line-height: 1 !important;
+  box-shadow: 0 2px 7px rgba(15, 23, 42, 0.12) !important;
+}
+
+header.public-header .public-nav-inner .public-nav-btn:hover,
+header.public-header .public-nav-inner .public-nav-btn--home:hover,
+header.public-header .public-nav-inner .public-nav-btn--supervisor:hover,
+header.public-header .public-nav-inner .public-nav-btn--notif:hover,
+header.public-header .public-nav-inner .public-nav-btn--theme:hover {
+  background: #152A66 !important;
+  border-color: #152A66 !important;
+  color: #FFFFFF !important;
+  transform: translateY(-1px);
+}
+
+html[dir="rtl"] header.public-header .public-nav-inner .public-nav-btn {
+  justify-content: flex-end !important;
+  text-align: right;
+}
+
+/* Compact white public-menu buttons with one consistent size. */
+header.public-header .public-nav-inner .public-nav-btn,
+header.public-header .public-nav-inner .public-nav-btn--home,
+header.public-header .public-nav-inner .public-nav-btn--supervisor,
+header.public-header .public-nav-inner .public-nav-btn--notif,
+header.public-header .public-nav-inner .public-nav-btn--theme {
+  height: 40px !important;
+  min-height: 40px !important;
+  width: 100% !important;
+  box-sizing: border-box;
+  padding: 0 13px !important;
+  background: #FFFFFF !important;
+  color: #0F172A !important;
+  border: 1px solid #E2E8F0 !important;
+  border-radius: 999px !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  box-shadow: 0 2px 7px rgba(15, 23, 42, 0.07) !important;
+}
+
+header.public-header .public-nav-inner .public-nav-btn:hover,
+header.public-header .public-nav-inner .public-nav-btn--home:hover,
+header.public-header .public-nav-inner .public-nav-btn--supervisor:hover,
+header.public-header .public-nav-inner .public-nav-btn--notif:hover,
+header.public-header .public-nav-inner .public-nav-btn--theme:hover {
+  background: #F8FAFC !important;
+  color: #1E3A8A !important;
+  border-color: #BFDBFE !important;
+}
+
+/* Keep Log In below Night Mode, but use a small deliberate separation. */
+header.public-header .public-nav-inner .public-nav-btn[href="admin/login.php"] {
+  margin-top: 16px !important;
 }
 
 /* ------------------------------------------------------------------ */
@@ -2350,11 +2599,6 @@ html[data-theme="dark"] .dm-icon-btn:hover {
     color: #888;
     border-top: 1px solid var(--border, #e5e7eb);
 }
-/* ============================================================
-   19. CENTERED + RESPONSIVE (Desktop · Tablet · Mobile)
-   Content centered on all screen sizes — not desktop-only
-   ============================================================ */
-
 /* Main content column centered in available space */
 .shell .main {
   width: 100%;
@@ -2486,11 +2730,11 @@ footer.tag {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 14px;
   }
-  header {
+  header:not(.public-header) {
     justify-content: center;
     text-align: center;
   }
-  header .brand {
+  header:not(.public-header) .brand {
     justify-content: center;
     width: 100%;
   }
@@ -2580,4 +2824,971 @@ footer.tag {
       padding-bottom: max(10px, env(safe-area-inset-bottom));
     }
   }
+}
+
+/* ------------------------------------------------------------------ */
+/* Public header responsive nav (desktop buttons + mobile toggle)    */
+/* ------------------------------------------------------------------ */
+
+/* ============================================================
+   Public header — dashboard-style fixed top bar (matches admin)
+   Logo · Brand .............. Home LogIn About Feedback Help Sup 🔔 · Lang
+   ============================================================ */
+header.public-header {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  z-index: 100 !important;
+  min-height: 68px;
+  padding: 10px 18px 10px 14px;
+  margin: 0;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 12px 14px;
+  text-align: left;
+  color: var(--text);
+
+  /* Same soft glass + subtle gradient as admin .top-actions */
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--panel) 96%, var(--cyan) 4%) 0%,
+      var(--panel) 100%
+    ) !important;
+  backdrop-filter: blur(16px) saturate(1.25);
+  -webkit-backdrop-filter: blur(16px) saturate(1.25);
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 80%, var(--cyan) 20%);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.04) inset,
+    0 4px 24px rgba(15, 23, 42, 0.08);
+}
+
+/* Push page content below fixed header */
+body:has(header.public-header) {
+  padding-top: 72px;
+}
+
+header.public-header .brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  flex: 0 1 auto;
+  width: auto;
+  justify-content: flex-start;
+  text-align: left;
+  order: 0;
+}
+header.public-header .brand-link {
+  display: flex;
+  flex-shrink: 0;
+  text-decoration: none;
+  line-height: 0;
+}
+header.public-header .brand .logo {
+  height: 42px;
+  width: 42px;
+  border-radius: 12px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  padding: 2px;
+  object-fit: contain;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.3s var(--ease-out);
+}
+header.public-header .brand .logo:hover {
+  border-color: #BFDBFE;
+  box-shadow: 0 0 0 3px var(--cyan-soft);
+  transform: scale(1.04);
+}
+header.public-header .brand-title {
+  font-family: var(--display);
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1.2;
+  color: var(--text);
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: min(240px, 28vw);
+}
+header.public-header .brand-eyebrow {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  color: var(--cyan);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 1px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+header.public-header .brand-subtitle {
+  font-size: 11px;
+  color: var(--faint);
+  margin-top: 1px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: min(260px, 32vw);
+}
+
+/* Hamburger toggle — exact dashboard style (blue rounded square + yellow dot)
+   Always visible on the left, like admin dashboard */
+header.public-header .nav-toggle {
+  display: flex;
+  position: relative;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 0;
+  width: 44px;
+  height: 44px;
+  margin: 0;
+  padding: 0;
+  border: none;
+  border-radius: 14px;                  /* rounded square like dashboard image */
+  background: linear-gradient(145deg, #3B82F6 0%, #1D4ED8 100%);
+  box-shadow:
+    0 2px 8px rgba(37, 99, 235, 0.35),
+    0 0 0 1px rgba(255, 255, 255, 0.12) inset;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
+  order: -1;                            /* leftmost, before brand */
+}
+header.public-header .nav-toggle:hover,
+header.public-header .nav-toggle:focus-visible {
+  transform: translateY(-1px) scale(1.04);
+  filter: brightness(1.08);
+  box-shadow:
+    0 6px 16px rgba(37, 99, 235, 0.45),
+    0 0 0 1px rgba(255, 255, 255, 0.16) inset;
+  outline: none;
+}
+header.public-header .nav-toggle:active {
+  transform: scale(0.96);
+}
+
+/* Yellow notification dot (top-left) — same as dashboard toggle */
+header.public-header .nav-toggle::before {
+  content: "";
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #FBBF24;
+  box-shadow: 0 0 0 2px rgba(29, 78, 216, 0.9);
+  pointer-events: none;
+  z-index: 1;
+  transition: opacity 0.2s;
+}
+header.public-header .nav-toggle[aria-expanded="true"]::before {
+  opacity: 0;
+}
+
+/* Three white lines (decreasing width) */
+header.public-header .nav-toggle-bar {
+  display: block;
+  height: 2.5px;
+  background: #fff;
+  border-radius: 2px;
+  transition: transform 0.25s ease, opacity 0.2s, width 0.2s;
+  transform-origin: center;
+}
+header.public-header .nav-toggle-bar:nth-child(1) { width: 18px; margin-bottom: 4.5px; }
+header.public-header .nav-toggle-bar:nth-child(2) { width: 14px; margin-bottom: 4.5px; }
+header.public-header .nav-toggle-bar:nth-child(3) { width: 10px; }
+
+/* Open = X animation */
+header.public-header .nav-toggle[aria-expanded="true"] .nav-toggle-bar:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+  width: 18px;
+  margin-bottom: 0;
+}
+header.public-header .nav-toggle[aria-expanded="true"] .nav-toggle-bar:nth-child(2) {
+  opacity: 0;
+  width: 0;
+  margin-bottom: 0;
+}
+header.public-header .nav-toggle[aria-expanded="true"] .nav-toggle-bar:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
+  width: 18px;
+}
+
+/* Toggle-controlled group (Home, Log In, About, Help, Notifications).
+   Hidden by default at EVERY screen size; opened via .nav-toggle + .is-open,
+   as a floating list card anchored under the toggle button. */
+header.public-header .public-nav {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 14px;
+  width: 240px;
+  max-width: calc(100vw - 28px);
+  min-width: 0;
+  margin-top: 8px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  z-index: 150;
+  order: 0;
+}
+header.public-header .public-nav.is-open {
+  display: block;
+}
+header.public-header .public-nav-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 6px;
+  padding: 10px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: var(--shadow-md);
+}
+
+/* Duplicate header copy of Home/Log In/About/Help/Notifications — visible on desktop/tablet,
+   hidden on mobile (see media query below), where they exist only inside the toggle. */
+header.public-header .public-nav-quick {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 6px;
+  flex: 0 1 auto;
+  min-width: 0;
+  order: 0;
+}
+header.public-header .public-nav-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 8px 13px;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.2;
+  border-radius: 999px;
+  border: none;
+  background: #1E3A8A;
+  color: #fff !important;
+  text-decoration: none !important;
+  white-space: nowrap;
+  transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.1);
+}
+/* Inside the toggle dropdown, buttons stack as a full-width list (desktop and mobile alike) */
+header.public-header .public-nav .public-nav-btn {
+  width: 100%;
+  justify-content: flex-start;
+  border-radius: 11px;
+  padding: 12px 14px;
+  font-size: 14.5px;
+}
+header.public-header .public-nav .public-nav-btn--notif {
+  justify-content: flex-start;
+}
+header.public-header .public-nav-btn:hover {
+  background: #152A66;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(30, 58, 138, 0.28);
+  color: #fff !important;
+  text-decoration: none !important;
+}
+header.public-header .public-nav-btn.is-active {
+  box-shadow: 0 0 0 2px #93C5FD, 0 1px 2px rgba(15, 23, 42, 0.1);
+}
+/* Home — slightly brighter navy so it stands out as primary */
+header.public-header .public-nav-btn--home {
+  background: linear-gradient(145deg, #2563EB 0%, #1E3A8A 100%) !important;
+  font-weight: 700;
+}
+header.public-header .public-nav-btn--home:hover {
+  background: linear-gradient(145deg, #1D4ED8 0%, #152A66 100%) !important;
+}
+header.public-header .public-nav-btn--supervisor {
+  background: #0f766e !important;
+}
+header.public-header .public-nav-btn--supervisor:hover {
+  background: #0d9488 !important;
+}
+header.public-header .public-nav-btn--notif {
+  position: relative;
+  padding: 8px 11px;
+  background: var(--panel);
+  color: var(--text) !important;
+  border: 1.5px solid var(--border);
+  box-shadow: none;
+}
+header.public-header .public-nav-btn--notif:hover {
+  background: var(--cyan-soft);
+  border-color: #BFDBFE;
+  color: var(--cyan) !important;
+  transform: translateY(-1px);
+}
+/* Night-mode toggle is a <button>, not a link — normalize font/cursor to match */
+header.public-header .public-nav-btn--theme {
+  font-family: inherit;
+  cursor: pointer;
+  background: var(--panel);
+  color: var(--text) !important;
+  border: 1.5px solid var(--border);
+  box-shadow: none;
+}
+header.public-header .public-nav-btn--theme:hover {
+  background: var(--cyan-soft);
+  border-color: #BFDBFE;
+  color: var(--cyan) !important;
+  transform: translateY(-1px);
+}
+header.public-header .public-nav-btn--theme svg {
+  display: block;
+}
+
+header.public-header .notif-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  min-width: 17px;
+  height: 17px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: var(--red);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  box-shadow: 0 0 0 2px var(--panel);
+}
+header.public-header .nav-icon {
+  font-size: 13px;
+  line-height: 1;
+}
+
+/* ---- Microsoft-style search bar (white pill) ---- */
+header.public-header .header-search {
+  display: flex;
+  align-items: center;
+  flex: 1 1 auto;
+  max-width: 420px;
+  min-width: 140px;
+  height: 40px;
+  margin: 0 8px;
+  padding: 0 6px 0 14px;
+  background: #fff;
+  border: 1px solid color-mix(in srgb, var(--border) 70%, #CBD5E1 30%);
+  border-radius: 999px;
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, 0.04),
+    0 2px 8px rgba(15, 23, 42, 0.04);
+  transition: box-shadow 0.2s, border-color 0.2s;
+  order: 1;
+}
+header.public-header .header-search:focus-within {
+  border-color: #93C5FD;
+  box-shadow:
+    0 0 0 3px rgba(59, 130, 246, 0.18),
+    0 2px 8px rgba(15, 23, 42, 0.06);
+}
+header.public-header .header-search-icon {
+  display: flex;
+  align-items: center;
+  color: #64748B;
+  flex-shrink: 0;
+  margin-right: 8px;
+}
+header.public-header .header-search-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-family: var(--body);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+  letter-spacing: -0.01em;
+  padding: 0;
+  height: 100%;
+}
+header.public-header .header-search-input::placeholder {
+  color: #94A3B8;
+  font-weight: 400;
+}
+header.public-header .header-search-submit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  margin-left: 4px;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  color: #64748B;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s, color 0.15s;
+}
+header.public-header .header-search-submit:hover {
+  background: var(--cyan-soft);
+  color: var(--cyan);
+}
+
+html[data-theme="dark"] header.public-header .header-search {
+  background: var(--panel-2);
+  border-color: var(--border);
+}
+html[data-theme="dark"] header.public-header .header-search-input {
+  color: var(--text);
+}
+
+header.public-header .header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  order: 3;
+  margin-left: auto;
+}
+header.public-header .header-actions .lang-switch {
+  margin: 0;
+}
+header.public-header .header-actions select {
+  font-size: 13px;
+  padding: 7px 10px;
+  border-radius: 10px;
+  border: 1.5px solid var(--border);
+  background: var(--panel);
+  color: var(--text);
+  cursor: pointer;
+}
+
+/* ---- Tablet / small laptop: still show buttons if space allows ---- */
+@media (max-width: 1100px) {
+  header.public-header .public-nav-btn {
+    padding: 7px 10px;
+    font-size: 12.5px;
+    gap: 4px;
+  }
+  header.public-header .brand-title {
+    max-width: min(180px, 22vw);
+    font-size: 14px;
+  }
+  header.public-header .brand-subtitle {
+    max-width: min(200px, 24vw);
+  }
+}
+
+/* ---- Mobile + narrow tablet: hamburger + dropdown menu ---- */
+@media (max-width: 900px) {
+  header.public-header {
+    flex-wrap: wrap;
+    padding: 10px 14px;
+    min-height: 60px;
+  }
+  body:has(header.public-header) {
+    padding-top: 64px;
+  }
+  header.public-header .nav-toggle {
+    display: flex;
+    order: -1;          /* stay leftmost */
+  }
+  header.public-header .brand {
+    order: 1;
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  header.public-header .header-search {
+    order: 4;
+    flex: 0 0 100%;
+    max-width: 100%;
+    margin: 8px 0 0;
+  }
+  header.public-header .header-actions {
+    order: 3;
+    margin-left: 0;
+  }
+  header.public-header .public-nav-quick {
+    display: none;   /* on mobile these live only inside the toggle */
+  }
+
+  /* On small screens, the dropdown card spans the width under the wrapped header */
+  header.public-header .public-nav {
+    left: 14px;
+    right: 14px;
+    width: auto;
+    max-width: none;
+    order: 5;
+  }
+}
+
+@media (max-width: 520px) {
+  header.public-header .brand-title {
+    max-width: 130px;
+    font-size: 13.5px;
+  }
+  header.public-header .brand-eyebrow {
+    font-size: 8.5px;
+  }
+  header.public-header .brand-subtitle {
+    display: none;
+  }
+  header.public-header {
+    padding: 8px 12px;
+  }
+  header.public-header .brand .logo {
+    height: 38px;
+    width: 38px;
+  }
+}
+
+/* Prevent old tablet rule from breaking public header */
+@media (min-width: 601px) and (max-width: 1024px) {
+  header.public-header {
+    justify-content: space-between;
+    text-align: left;
+  }
+  header.public-header .brand {
+    justify-content: flex-start;
+    width: auto;
+  }
+}
+
+/* Body lock when mobile menu open (optional polish) */
+body.nav-open {
+  overflow: hidden;
+}
+@media (min-width: 901px) {
+  body.nav-open {
+    overflow: auto;
+  }
+}
+
+/* ============================================================
+   UI POLISH — modern standard (SaaS / civic 2025–26)
+   Cards · forms · buttons · tables · motion · density
+   ============================================================ */
+
+/* Smoother page canvas */
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Elevated cards */
+.card,
+.service-card,
+.stat,
+.hero-card,
+.panel {
+  border-radius: 18px !important;
+  border: 1px solid color-mix(in srgb, var(--border) 85%, transparent);
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, 0.04),
+    0 8px 24px rgba(15, 23, 42, 0.05) !important;
+  transition:
+    transform 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.2s ease;
+}
+.card:hover,
+.service-card:hover,
+.stat:hover {
+  transform: translateY(-3px);
+  border-color: color-mix(in srgb, var(--cyan) 28%, var(--border));
+  box-shadow:
+    0 4px 12px rgba(15, 23, 42, 0.06),
+    0 16px 40px rgba(15, 23, 42, 0.08) !important;
+}
+
+html[data-theme="dark"] .card:hover,
+html[data-theme="dark"] .service-card:hover,
+html[data-theme="dark"] .stat:hover {
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.35),
+    0 16px 40px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* Service cards — richer */
+.service-card .icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  background: color-mix(in srgb, var(--cyan-soft) 80%, var(--panel));
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+.service-card:hover .icon {
+  transform: scale(1.08) rotate(-3deg);
+}
+.service-card .count {
+  background: linear-gradient(135deg, var(--cyan), color-mix(in srgb, var(--cyan) 60%, #6366F1));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Stats */
+.stat .num {
+  letter-spacing: -0.04em;
+}
+.stat .lbl {
+  letter-spacing: 0.06em;
+}
+
+/* Forms — modern inputs */
+input,
+select,
+textarea {
+  border: 1.5px solid var(--border) !important;
+  border-radius: 12px !important;
+  padding: 11px 14px !important;
+  background: var(--panel) !important;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease !important;
+  font-size: 14.5px !important;
+}
+input:hover,
+select:hover,
+textarea:hover {
+  border-color: var(--border-strong) !important;
+}
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none !important;
+  border-color: var(--cyan) !important;
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--cyan) 18%, transparent) !important;
+}
+
+label {
+  font-size: 13px;
+  font-weight: 650;
+  letter-spacing: 0.01em;
+  color: var(--text);
+}
+
+/* Primary buttons */
+button[type="submit"],
+.btn,
+.btn-primary,
+a.btn {
+  border-radius: 12px !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.01em;
+  padding: 11px 18px !important;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease !important;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
+}
+button[type="submit"],
+.btn-primary {
+  background: linear-gradient(145deg, #2563EB 0%, #1E3A8A 100%) !important;
+  border: none !important;
+  color: #fff !important;
+  box-shadow:
+    0 2px 8px rgba(37, 99, 235, 0.28),
+    0 0 0 1px rgba(255, 255, 255, 0.08) inset !important;
+}
+button[type="submit"]:hover,
+.btn-primary:hover,
+.btn:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+}
+button[type="submit"]:active,
+.btn:active {
+  transform: translateY(0) scale(0.98);
+}
+
+/* Tables */
+table {
+  border-collapse: separate;
+  border-spacing: 0;
+  width: 100%;
+  overflow: hidden;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+}
+th {
+  font-size: 11.5px !important;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 700 !important;
+  background: var(--panel-2) !important;
+  padding: 12px 14px !important;
+}
+td {
+  padding: 12px 14px !important;
+  border-top: 1px solid var(--border);
+  font-size: 13.5px;
+}
+tr:hover td {
+  background: color-mix(in srgb, var(--cyan-soft) 45%, transparent);
+}
+
+/* Alerts */
+.alert {
+  border-radius: 14px !important;
+  padding: 14px 16px !important;
+  border-width: 1px !important;
+  box-shadow: var(--shadow-sm);
+}
+.alert.success {
+  background: color-mix(in srgb, var(--green) 12%, var(--panel)) !important;
+  border-color: color-mix(in srgb, var(--green) 35%, var(--border)) !important;
+}
+.alert.error {
+  background: color-mix(in srgb, var(--red) 12%, var(--panel)) !important;
+  border-color: color-mix(in srgb, var(--red) 35%, var(--border)) !important;
+}
+
+/* Badges */
+.badge,
+.nav-badge,
+.ping {
+  border-radius: 999px !important;
+  font-weight: 700;
+}
+
+/* Nav items polish (sidebar drawer) */
+.nav-item {
+  border-radius: 12px !important;
+  transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease !important;
+}
+.nav-item:hover {
+  transform: translateX(3px);
+}
+.nav-item.active {
+  box-shadow: inset 3px 0 0 var(--cyan) !important;
+}
+
+/* Scrollbar subtle */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) transparent;
+}
+
+/* Container breathing room */
+.container {
+  max-width: 920px;
+}
+.main {
+  animation: pageIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+@keyframes pageIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Public action / header buttons if present */
+.public-nav-btn,
+.public-action-btn {
+  border-radius: 999px !important;
+  font-weight: 650 !important;
+  transition: transform 0.15s ease, box-shadow 0.15s ease !important;
+}
+.public-nav-btn:hover,
+.public-action-btn:hover {
+  transform: translateY(-1px);
+}
+
+/* Escalation banner */
+.escalation-banner {
+  border-radius: 14px !important;
+  box-shadow: 0 4px 16px rgba(220, 38, 38, 0.12);
+}
+
+/* Slightly richer background */
+body {
+  background-image:
+    radial-gradient(ellipse 80% 50% at 50% -20%, color-mix(in srgb, var(--cyan) 8%, transparent), transparent);
+  background-attachment: fixed;
+}
+html[data-theme="dark"] body {
+  background-image:
+    radial-gradient(ellipse 80% 50% at 50% -20%, color-mix(in srgb, var(--cyan) 12%, transparent), transparent);
+}
+
+/* ------------------------------------------------------------------ */
+/* Dashboard headers (Admin, Supervisor, Call Center Operator, etc.)  */
+/* — fixed at top, edge-to-edge, stays put while the page scrolls.    */
+/* ------------------------------------------------------------------ */
+header:not(.public-header) {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  width: 100%;
+  z-index: 100;
+}
+body:has(header:not(.public-header)) {
+  padding-top: 96px;
+}
+.shell .main {
+  padding-top: 0;
+}
+@media (max-width: 900px) {
+  header:not(.public-header) { padding: 12px 16px; }
+  body:has(header:not(.public-header)) { padding-top: 84px; }
+}
+@media (max-width: 600px) {
+  header:not(.public-header) { padding: 10px 12px; }
+  body:has(header:not(.public-header)) { padding-top: 76px; }
+}
+
+/* Fixed admin header */
+.main > .top-actions {
+  position: fixed !important;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  width: 100%;
+  margin: 0 !important;
+}
+
+/* Prevent the first page content from hiding underneath the fixed header. */
+.shell .main {
+  padding-top: 108px !important;
+}
+
+/* Public navigation buttons: white, compact, and equal-sized. */
+header.public-header .public-nav-btn,
+header.public-header .public-nav-btn--home,
+header.public-header .public-nav-btn--supervisor,
+header.public-header .public-nav-btn--notif,
+header.public-header .public-nav-btn--theme {
+  height: 40px !important;
+  min-height: 40px !important;
+  box-sizing: border-box;
+  background: #FFFFFF !important;
+  color: #0F172A !important;
+  border: 1px solid #CBD5E1 !important;
+  border-radius: 999px !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  box-shadow: 0 2px 7px rgba(15, 23, 42, 0.07) !important;
+}
+
+header.public-header .public-nav-btn:hover,
+header.public-header .public-nav-btn--home:hover,
+header.public-header .public-nav-btn--supervisor:hover,
+header.public-header .public-nav-btn--notif:hover,
+header.public-header .public-nav-btn--theme:hover {
+  background: #F8FAFC !important;
+  color: #1E3A8A !important;
+  border-color: #93C5FD !important;
+}
+
+header.public-header .public-nav-btn.is-active {
+  background: #FFFFFF !important;
+  color: #1E3A8A !important;
+  border-color: #2563EB !important;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.14) !important;
+}
+
+/* The desktop quick-nav variant uses the same dimensions as the dropdown. */
+header.public-header .public-nav-quick .public-nav-btn {
+  width: 88px !important;
+  min-width: 88px !important;
+  padding: 0 10px !important;
+  justify-content: center !important;
+}
+
+/* Log In must not be taller or separated from the other public links. */
+header.public-header .public-nav-btn[href="admin/login.php"] {
+  margin-top: 0 !important;
+}
+
+/* Compact public tracking search: keep the field and submit control aligned. */
+header.public-header .header-search {
+  flex: 0 1 360px !important;
+  max-width: 360px !important;
+  min-width: 180px !important;
+  height: 36px !important;
+  margin: 0 6px !important;
+  padding: 0 4px 0 10px !important;
+  overflow: hidden;
+}
+
+header.public-header .header-search-input {
+  width: auto !important;
+  height: 34px !important;
+  min-height: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  font-size: 13px !important;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+header.public-header .header-search-input::-webkit-search-cancel-button {
+  display: none;
+  -webkit-appearance: none;
+}
+
+header.public-header .header-search-submit {
+  width: 30px !important;
+  height: 30px !important;
+  min-height: 30px !important;
+  flex: 0 0 30px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 999px !important;
+  background: linear-gradient(145deg, #2563EB 0%, #1E3A8A 100%) !important;
+  color: #FFFFFF !important;
+  box-shadow: 0 2px 6px rgba(30, 58, 138, 0.25) !important;
+}
+
+header.public-header .header-search-submit:hover {
+  background: linear-gradient(145deg, #1D4ED8 0%, #152A66 100%) !important;
+  color: #FFFFFF !important;
+}
+
+@media (max-width: 900px) {
+  header.public-header .header-search {
+    flex: 1 1 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    height: 36px !important;
+    margin: 8px 0 0 !important;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Final override: guarantee the admin top bar is pinned to the       */
+/* viewport and can never scroll away, regardless of any competing    */
+/* rule earlier in the cascade (kept last so it always wins ties).    */
+/* ------------------------------------------------------------------ */
+.shell .main > .top-actions,
+.main > .top-actions,
+.top-actions {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  z-index: 1000 !important;
+  width: 100% !important;
+  margin: 0 !important;
 }

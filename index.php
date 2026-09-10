@@ -30,7 +30,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $caller_name = trim($_POST['caller_name'] ?? '');
     $caller_phone = normalize_et_phone($_POST['caller_phone'] ?? '');
     $gender = in_array($_POST['gender'] ?? '', ['male','female']) ? $_POST['gender'] : 'unspecified';
-    $address = trim($_POST['address'] ?? '');
+    $address_area = trim($_POST['address_area'] ?? '');
+    $address_details = trim($_POST['address'] ?? '');
+    $address = trim(implode(', ', array_filter([$address_area, $address_details])));
     $location = trim($_POST['location'] ?? '');
     $latitude = is_numeric($_POST['latitude'] ?? null) ? (float) $_POST['latitude'] : null;
     $longitude = is_numeric($_POST['longitude'] ?? null) ? (float) $_POST['longitude'] : null;
@@ -90,17 +92,12 @@ $dir = t_raw('dir');
 <?php leaflet_assets(); ?>
 </head>
 <body>
-<header>
-    <div class="brand">
-        <img src="assets/logo-adama.png" alt="Adama City Administration emblem" class="logo">
-        <div>
-            <div class="brand-eyebrow">Adama City Administration</div>
-            <div class="brand-title"><?= t('site_title') ?></div>
-            <div class="brand-subtitle"><?= t('site_subtitle') ?></div>
-        </div>
-    </div>
-    <?php render_lang_switcher(); ?>
-</header>
+<?php
+$header_title = t('site_title');
+$header_subtitle = t('site_subtitle');
+$active_nav = 'home';
+require __DIR__ . '/includes/public_header.php';
+?>
 <div class="container">
 
     <?php if ($success): ?>
@@ -142,7 +139,16 @@ $dir = t_raw('dir');
             <input type="text" name="location" placeholder="<?= t('placeholder_location') ?>" required>
 
             <label><?= t('label_address') ?></label>
-            <input type="text" name="address">
+            <select name="address_area" id="addressArea">
+                <option value="">— Kutaa magaalaa Adaamaa filadhu / Select Adama area —</option>
+                <?php foreach (adama_places() as $place): ?>
+                    <option value="<?= htmlspecialchars($place['name'], ENT_QUOTES, 'UTF-8') ?>">
+                        <?= htmlspecialchars($place['name']) ?>
+                    </option>
+                <?php endforeach; ?>
+                <option value="Other area in Adama / Kutaa biraa Adaamaa keessaa">Other area in Adama / Kutaa biraa Adaamaa keessaa</option>
+            </select>
+            <input type="text" name="address" placeholder="Street, house number, or extra details (optional)">
 
             <?php render_location_picker('reportMap'); ?>
 
@@ -186,15 +192,7 @@ $dir = t_raw('dir');
             <button type="submit"><?= t('btn_check') ?></button>
         </form>
     </div>
-    <div class="card" style="margin-top:16px;">
-        <div class="public-action-btns">
-          <a class="btn public-action-btn" href="admin/login.php">🔑<?= t('Log In') ?></a>
-            <a class="btn public-action-btn" href="about.php">ℹ️<?= t('btn_about_short') ?></a>
-            <a class="btn public-action-btn" href="citizen_feedback.php">💬 <?= t('btn_feedback_short') ?></a>
-            <a class="btn public-action-btn" href="citizen_help.php">🆘 <?= t('btn_help_short') ?></a>
-            <a class="btn public-action-btn public-action-btn--supervisor" href="track.php">📞 <?= t('contact supervisor') ?></a>
-        </div>
-    </div>
+
 
     <div class="card about-card" style="margin-top:30px;">
         <h2 style="font-size:16px;">ℹ️ <?= t('about_title') ?></h2>

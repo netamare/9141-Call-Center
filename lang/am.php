@@ -240,6 +240,7 @@ return [
     'notif_mark_read' => 'ሁሉንም እንደተነበበ ምልክት አድርግ',
     'notif_empty' => 'እስካሁን ምንም ማሳወቂያ የለም።',
     'theme_toggle' => 'ብሩህ / ጨለማ ገጽታ ቀይር',
+    'night_mode' => 'የሌሊት ገጽታ',
     'system_live' => 'ስርዓቱ እየሰራ ነው',
     'share_copied' => 'አገናኙ ተቀድቷል!',
     'error_word_limit' => 'እባክዎ መግለጫዎን ወደ %d ወይም ያነሱ ቃላት ያሳጥሩ።',
