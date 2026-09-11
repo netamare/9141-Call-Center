@@ -26,7 +26,7 @@ $can_reports     = in_array($role, ['administrator', 'supervisor', 'operator'], 
 // Performance + Analytics: administrator & supervisor only
 $can_analytics   = in_array($role, ['administrator', 'supervisor'], true);
 // Room Camera / AI Detection: administrator + camera_operator only
-$can_cameras     = in_array($role, ['administrator', 'camera_operator'], true);
+$can_cameras     = in_array($role, ['administrator', 'camera_operator', 'supervisor'], true);
 // Recent Activity: administrator, supervisor, operator only
 $can_activity    = in_array($role, ['administrator', 'supervisor', 'operator'], true);
 // Public citizen feedback/help from outside

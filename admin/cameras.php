@@ -1,6 +1,6 @@
 <?php
 require __DIR__ . '/../includes/auth.php';
-require_role(['administrator', 'camera_operator']);
+require_role(['administrator', 'camera_operator', 'supervisor']);
 require __DIR__ . '/../includes/security.php';
 require __DIR__ . '/../includes/ai_detection.php';
 require __DIR__ . '/../includes/cameras.php';
@@ -96,6 +96,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             if (!empty($result['ok'])) {
                 ai_save_detections($pdo, $eventId, $attId, $result);
                 $aiMessage = $result['summary'] ?? t('cameras_ai_done');
+                if (!empty($result['summary_om'])) {
+                    $aiMessage .= ' · ' . $result['summary_om'];
+                }
+                if (!empty($result['suggested_action'])) {
+                    $aiMessage .= ' | → ' . $result['suggested_action'];
+                }
             } else {
                 $aiError = $result['error'] ?? 'AI detection failed';
             }
@@ -535,7 +541,7 @@ $isAdmin = current_role() === 'administrator';
                             <?php if ($dets): ?>
                                 <div class="det">
                                     <?php foreach (array_slice($dets, 0, 4) as $d): ?>
-                                        <?= htmlspecialchars($d['label']) ?> (<?= round(($d['confidence']??0)*100) ?>%) · <?= ai_category_label($d['category'] ?? '') ?><br>
+                                        <?= htmlspecialchars($d['label']) ?> (<?= round(($d['confidence']??0)*100) ?>%) · <?= ai_category_label($d['category'] ?? '') ?><?php if (!empty($d['severity'])): ?> · <strong><?= htmlspecialchars($d['severity']) ?></strong><?php endif; ?><br>
                                     <?php endforeach; ?>
                                 </div>
                             <?php endif; ?>

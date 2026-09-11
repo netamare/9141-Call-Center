@@ -25,6 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_rating'])) {
 }
 
 // Public → supervisor direct message (any time while case is still open)
+// Supports text, emoji, image, voice, video
 $dmSuccess = false;
 $dmError = null;
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_citizen_dm'])) {
@@ -34,29 +35,68 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_citizen_dm']))
     $dmName = trim($_POST['citizen_dm_name'] ?? '');
     $dmPhone = trim($_POST['citizen_dm_phone'] ?? '');
     $dmConsent = !empty($_POST['citizen_dm_consent']);
-    if (!$dmConsent) {
-        $dmError = t_raw('sup_dm_consent_required');
-    } elseif ($code !== '' && $dmText !== '') {
-        $stmt = $pdo->prepare("SELECT * FROM events WHERE tracking_code = ?");
-        $stmt->execute([$code]);
-        $ev = $stmt->fetch();
-        // Any time while case is still open (not solved/unsolved)
-        $stillOpen = $ev && !in_array($ev['status'] ?? '', ['solved', 'unsolved'], true);
-        if ($ev && $stillOpen) {
-            if (citizen_message_to_supervisor($pdo, (int)$ev['id'], $dmText, $dmName, $dmPhone)) {
-                $dmSuccess = true;
-                try {
-                    require_once __DIR__ . '/includes/notifications.php';
-                    $title = t_raw('sup_dm_from_public_notify');
-                    $body = trim(($dmName ? $dmName . ' · ' : '') . ($dmPhone ? $dmPhone . ' · ' : '') . $code . ' — ' . mb_substr($dmText, 0, 160));
-                    // Direct message: supervisor only (not admin/operator)
-                    notify_roles($pdo, ['supervisor'], (int)$ev['id'], 'citizen_dm', $title, $body, true);
-                } catch (Throwable $e) {}
+    $msgType = $_POST['message_type'] ?? 'text';
+    if (!in_array($msgType, ['text', 'emoji', 'image', 'voice', 'video'], true)) $msgType = 'text';
+
+    $attachPath = null;
+    $attachName = null;
+
+    // File upload
+    if (!empty($_FILES['sm_file']['name']) && ($_FILES['sm_file']['error'] ?? 1) === UPLOAD_ERR_OK) {
+        $uploadType = $msgType;
+        if ($uploadType === 'text' || $uploadType === 'emoji') {
+            $finfo = finfo_open(FILEINFO_MIME_TYPE);
+            $mime = finfo_file($finfo, $_FILES['sm_file']['tmp_name']);
+            finfo_close($finfo);
+            if (str_starts_with($mime, 'image/')) $uploadType = 'image';
+            elseif (str_starts_with($mime, 'audio/')) $uploadType = 'voice';
+            elseif (str_starts_with($mime, 'video/')) $uploadType = 'video';
+            else $uploadType = 'image';
+        }
+        $attachPath = sm_save_attachment($_FILES['sm_file'], $uploadType);
+        if ($attachPath) {
+            $msgType = $uploadType;
+            $attachName = $_FILES['sm_file']['name'] ?? null;
+        } else {
+            $dmError = 'File upload failed / Faayilli hin olkaa\'amne.';
+        }
+    }
+    // Base64 recordings
+    if (!$attachPath && !empty($_POST['voice_b64'])) {
+        $attachPath = sm_save_base64($_POST['voice_b64'], 'voice', 'webm');
+        if ($attachPath) { $msgType = 'voice'; $attachName = 'voice.webm'; }
+    }
+    if (!$attachPath && !empty($_POST['video_b64'])) {
+        $attachPath = sm_save_base64($_POST['video_b64'], 'video', 'webm');
+        if ($attachPath) { $msgType = 'video'; $attachName = 'video.webm'; }
+    }
+
+    if (!$dmError) {
+        if (!$dmConsent) {
+            $dmError = t_raw('sup_dm_consent_required');
+        } elseif ($code !== '' && ($dmText !== '' || $attachPath)) {
+            $stmt = $pdo->prepare("SELECT * FROM events WHERE tracking_code = ?");
+            $stmt->execute([$code]);
+            $ev = $stmt->fetch();
+            $stillOpen = $ev && !in_array($ev['status'] ?? '', ['solved', 'unsolved'], true);
+            if ($ev && $stillOpen) {
+                if (citizen_message_to_supervisor($pdo, (int)$ev['id'], $dmText, $dmName, $dmPhone, $msgType, $attachPath, $attachName)) {
+                    $dmSuccess = true;
+                    try {
+                        require_once __DIR__ . '/includes/notifications.php';
+                        $title = t_raw('sup_dm_from_public_notify');
+                        $preview = $dmText !== '' ? $dmText : ('[' . $msgType . ']');
+                        $body = trim(($dmName ? $dmName . ' · ' : '') . ($dmPhone ? $dmPhone . ' · ' : '') . $code . ' — ' . mb_substr($preview, 0, 160));
+                        notify_roles($pdo, ['supervisor'], (int)$ev['id'], 'citizen_dm', $title, $body, true);
+                    } catch (Throwable $e) {}
+                } else {
+                    $dmError = t_raw('error_required');
+                }
             } else {
-                $dmError = t_raw('error_required');
+                $dmError = t_raw('track_case_no_dm_resolved');
             }
         } else {
-            $dmError = t_raw('track_case_no_dm_resolved');
+            $dmError = t_raw('error_required');
         }
     } else {
         $dmError = t_raw('error_required');
@@ -154,7 +194,7 @@ require __DIR__ . '/includes/public_header.php';
                         <?= htmlspecialchars($sm['supervisor_name'] ?? 'Supervisor') ?>
                         · <?= htmlspecialchars($sm['created_at']) ?>
                     </div>
-                    <div style="margin-top:6px; line-height:1.5;"><?= nl2br(htmlspecialchars($sm['message'])) ?></div>
+                    <div style="margin-top:6px;"><?= sm_render_body($sm) ?></div>
                 </div>
             <?php endforeach; ?>
             <?php endif; ?>
@@ -189,21 +229,127 @@ require __DIR__ . '/includes/public_header.php';
             <?php else: ?>
                 <?php if ($dmError): ?><div class="alert error"><?= htmlspecialchars($dmError) ?></div><?php endif; ?>
                 <p class="muted" style="font-size:13px;"><?= t('sup_dm_citizen_form_intro') ?></p>
-                <form method="post">
+                <form method="post" enctype="multipart/form-data" id="citizenDmForm">
                     <?= csrf_field() ?>
                     <input type="hidden" name="code" value="<?= htmlspecialchars($code) ?>">
+                    <input type="hidden" name="message_type" id="sm_message_type" value="text">
+                    <input type="hidden" name="voice_b64" id="sm_voice_b64" value="">
+                    <input type="hidden" name="video_b64" id="sm_video_b64" value="">
                     <label><?= t('citizen_fb_name') ?></label>
                     <input type="text" name="citizen_dm_name" maxlength="150" value="<?= htmlspecialchars($report['caller_name'] ?? '') ?>">
                     <label><?= t('citizen_fb_phone') ?></label>
                     <input type="text" name="citizen_dm_phone" value="<?= htmlspecialchars($report['caller_phone'] ?? '') ?>" placeholder="09xxxxxxxx">
-                    <label><?= t('sup_dm_citizen_message') ?> *</label>
-                    <textarea name="citizen_dm" required rows="4" placeholder="<?= t_raw('sup_dm_citizen_placeholder') ?>"></textarea>
+                    <label><?= t('sup_dm_citizen_message') ?></label>
+                    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px;">
+                        <button type="button" id="smBtnEmoji" style="padding:6px 10px;border-radius:8px;border:1px solid var(--border);background:var(--panel-2);cursor:pointer;">😊 Emoji</button>
+                        <label style="padding:6px 10px;border-radius:8px;border:1px solid var(--border);background:var(--panel-2);cursor:pointer;">
+                            📷 Image <input type="file" name="sm_file" id="smFileImage" accept="image/*" style="display:none;" onchange="smOnFile(this,'image')">
+                        </label>
+                        <button type="button" id="smBtnVoice" style="padding:6px 10px;border-radius:8px;border:1px solid var(--border);background:var(--panel-2);cursor:pointer;">🎤 Voice</button>
+                        <button type="button" id="smBtnVideo" style="padding:6px 10px;border-radius:8px;border:1px solid var(--border);background:var(--panel-2);cursor:pointer;">🎬 Video</button>
+                        <label style="padding:6px 10px;border-radius:8px;border:1px solid var(--border);background:var(--panel-2);cursor:pointer;">
+                            📎 File <input type="file" name="sm_file" id="smFileAny" accept="image/*,audio/*,video/*" style="display:none;" onchange="smOnFile(this,'auto')">
+                        </label>
+                    </div>
+                    <div id="smEmojiPicker" style="display:none;flex-wrap:wrap;gap:4px;padding:8px;background:var(--panel-2);border:1px solid var(--border);border-radius:10px;margin-bottom:8px;max-width:320px;">
+                        <?php
+                        $emojis = ['😀','😂','😊','😍','🤔','👍','👎','👏','🙏','🔥','✅','❌','⚠️','🚨','📍','📞','💪','🙌','❤️','💙','🟢','🔴','⭐','🎉','📝','📷','🎤','🎬','🚗','🏥','👮','🚒'];
+                        foreach ($emojis as $e) echo '<span style="font-size:22px;cursor:pointer;padding:4px;" onclick="smInsertEmoji(\''.$e.'\')">'.$e.'</span>';
+                        ?>
+                    </div>
+                    <div id="smMediaPreview" style="display:none;font-size:12px;color:var(--muted);margin-bottom:8px;"></div>
+                    <textarea name="citizen_dm" id="smMessage" rows="4" placeholder="<?= t_raw('sup_dm_citizen_placeholder') ?>"></textarea>
                     <label style="display:flex; align-items:flex-start; gap:10px; margin-top:12px; font-weight:normal; cursor:pointer;">
                         <input type="checkbox" name="citizen_dm_consent" value="1" required style="margin-top:4px; width:auto;">
                         <span><?= t('sup_dm_consent_label') ?></span>
                     </label>
                     <button type="submit" name="submit_citizen_dm" style="margin-top:12px;"><?= t('sup_dm_citizen_send') ?></button>
                 </form>
+                <script>
+                function smInsertEmoji(e) {
+                  var ta = document.getElementById('smMessage');
+                  if (!ta) return;
+                  ta.value += e;
+                  document.getElementById('sm_message_type').value = 'emoji';
+                  ta.focus();
+                }
+                document.getElementById('smBtnEmoji')?.addEventListener('click', function(){
+                  var p = document.getElementById('smEmojiPicker');
+                  p.style.display = p.style.display === 'flex' ? 'none' : 'flex';
+                });
+                function smOnFile(input, forced) {
+                  var file = input.files && input.files[0];
+                  if (!file) return;
+                  var type = forced;
+                  if (type === 'auto') {
+                    if (file.type.startsWith('image/')) type = 'image';
+                    else if (file.type.startsWith('audio/')) type = 'voice';
+                    else if (file.type.startsWith('video/')) type = 'video';
+                    else type = 'image';
+                  }
+                  document.getElementById('sm_message_type').value = type;
+                  var other = input.id === 'smFileImage' ? document.getElementById('smFileAny') : document.getElementById('smFileImage');
+                  if (other) other.value = '';
+                  var prev = document.getElementById('smMediaPreview');
+                  prev.style.display = 'block';
+                  prev.innerHTML = '📎 ' + file.name + ' (' + (file.size/1024).toFixed(0) + ' KB)';
+                  if (type === 'image') prev.innerHTML += '<br><img src="'+URL.createObjectURL(file)+'" style="max-width:140px;border-radius:6px;margin-top:4px;">';
+                }
+                var smVoiceRec=null, smVoiceChunks=[], smVoiceStream=null;
+                document.getElementById('smBtnVoice')?.addEventListener('click', async function(){
+                  var btn=this;
+                  if (smVoiceRec && smVoiceRec.state==='recording'){ smVoiceRec.stop(); btn.textContent='🎤 Voice'; return; }
+                  try {
+                    smVoiceStream = await navigator.mediaDevices.getUserMedia({audio:true});
+                    smVoiceChunks=[];
+                    smVoiceRec = new MediaRecorder(smVoiceStream);
+                    smVoiceRec.ondataavailable = function(e){ if(e.data.size) smVoiceChunks.push(e.data); };
+                    smVoiceRec.onstop = function(){
+                      var blob=new Blob(smVoiceChunks,{type:'audio/webm'});
+                      var r=new FileReader();
+                      r.onloadend=function(){
+                        document.getElementById('sm_voice_b64').value=(r.result||'').split(',')[1]||'';
+                        document.getElementById('sm_message_type').value='voice';
+                        document.getElementById('sm_video_b64').value='';
+                        var prev=document.getElementById('smMediaPreview');
+                        prev.style.display='block';
+                        prev.innerHTML='🎤 Voice <audio controls src="'+URL.createObjectURL(blob)+'" style="display:block;margin-top:4px;max-width:220px;"></audio>';
+                      };
+                      r.readAsDataURL(blob);
+                      smVoiceStream.getTracks().forEach(function(t){t.stop();});
+                    };
+                    smVoiceRec.start();
+                    btn.textContent='⏹ Stop';
+                  } catch(err){ alert('Mic: '+(err.message||err.name)); }
+                });
+                var smVideoRec=null, smVideoChunks=[], smVideoStream=null;
+                document.getElementById('smBtnVideo')?.addEventListener('click', async function(){
+                  var btn=this;
+                  if (smVideoRec && smVideoRec.state==='recording'){ smVideoRec.stop(); btn.textContent='🎬 Video'; return; }
+                  try {
+                    smVideoStream = await navigator.mediaDevices.getUserMedia({audio:true,video:true});
+                    smVideoChunks=[];
+                    smVideoRec = new MediaRecorder(smVideoStream);
+                    smVideoRec.ondataavailable = function(e){ if(e.data.size) smVideoChunks.push(e.data); };
+                    smVideoRec.onstop = function(){
+                      var blob=new Blob(smVideoChunks,{type:'video/webm'});
+                      var r=new FileReader();
+                      r.onloadend=function(){
+                        document.getElementById('sm_video_b64').value=(r.result||'').split(',')[1]||'';
+                        document.getElementById('sm_message_type').value='video';
+                        document.getElementById('sm_voice_b64').value='';
+                        var prev=document.getElementById('smMediaPreview');
+                        prev.style.display='block';
+                        prev.innerHTML='🎬 Video <video controls src="'+URL.createObjectURL(blob)+'" style="display:block;margin-top:4px;max-width:220px;max-height:130px;"></video>';
+                      };
+                      r.readAsDataURL(blob);
+                      smVideoStream.getTracks().forEach(function(t){t.stop();});
+                    };
+                    smVideoRec.start();
+                    btn.textContent='⏹ Stop';
+                  } catch(err){ alert('Camera: '+(err.message||err.name)); }
+                });
+                </script>
             <?php endif; ?>
 
             <?php if (in_array($report['status'], ['solved','unsolved'], true)): ?>

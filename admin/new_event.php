@@ -231,7 +231,7 @@ $dir = t_raw('dir');
                         <button type="button" class="btn-ai" id="aiAnalyzeBtn" onclick="aiAnalyzeReport()">Analyze report</button>
                     </div>
                     <div class="ai-copilot-body" id="aiCopilotBody" style="display:none;"></div>
-                    <div class="ai-copilot-note">AI’n gorsa qofa kenna — category, priority, bakka fi department ofumaan hin galchamu. Suggestions ilaaltee "Apply suggestions" tuqi; kanaan booda ati mirkaneessitee "<?= t('btn_register_event') ?>" tuqxee qofa gabaasni ni galma’a.</div>
+                    <div class="ai-copilot-note">🤖 <strong>AI Copilot v2</strong> — description keessaa category, priority, bakka fi department tilmaama. “Apply suggestions” tuquun form irratti ni galcha; ati mirkaneessitee “<?= t('btn_register_event') ?>” tuqxee qofa gabaasni ni galma’a. High confidence = baay’ee amanamaa; medium = ilaali.</div>
                 </div>
 
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px;">
@@ -424,98 +424,172 @@ function aiChip(label, value, confidence) {
            '<span class="ai-chip ' + (confidence === 'high' ? 'ok' : 'maybe') + '">' + aiEsc(value) + '</span></span>';
 }
 
+/* ---- Operator AI Copilot v2 ---- */
+var _aiLast = null;
+
+function aiConfBadge(c) {
+  c = (c || 'none').toLowerCase();
+  var color = c === 'high' ? '#16a34a' : (c === 'medium' ? '#d97706' : '#94a3b8');
+  return '<span style="font-size:11px;padding:1px 7px;border-radius:8px;background:'+color+';color:#fff;margin-left:6px;">' + c + '</span>';
+}
+
 function aiAnalyzeReport() {
-    var desc = document.getElementById('descField').value.trim();
-    var body = document.getElementById('aiCopilotBody');
-    var btn = document.getElementById('aiAnalyzeBtn');
-    if (!desc) {
-        body.style.display = 'block';
-        body.innerHTML = '<div class="ai-empty">Duraan dursii description barreessi, ergasii Analyze report tuqi.</div>';
-        return;
-    }
-    var csrf = document.querySelector('#eventForm input[name="csrf_token"]').value;
-    var addressArea = document.getElementById('operatorAddressArea').value;
-
-    btn.disabled = true;
-    btn.textContent = 'Analyzing…';
+  var desc = (document.getElementById('descField') || {}).value || '';
+  desc = desc.trim();
+  var body = document.getElementById('aiCopilotBody');
+  var btn = document.getElementById('aiAnalyzeBtn');
+  if (!desc) {
     body.style.display = 'block';
-    body.innerHTML = '<div class="ai-empty">🔎 Analyzing…</div>';
+    body.innerHTML = '<div class="ai-empty">Duraan dursii description barreessi, ergasii Analyze report tuqi.</div>';
+    return;
+  }
+  btn.disabled = true;
+  btn.textContent = 'Analyzing…';
+  body.style.display = 'block';
+  body.innerHTML = '<div class="ai-empty">⏳ Analyzing…</div>';
 
-    var fd = new FormData();
-    fd.append('csrf_token', csrf);
-    fd.append('description', desc);
-    fd.append('address_area', addressArea);
+  var fd = new FormData();
+  fd.append('description', desc);
+  var locEl = document.querySelector('[name="location"]');
+  if (locEl && locEl.value) fd.append('location', locEl.value);
+  var csrf = document.querySelector('input[name="csrf_token"]');
+  if (csrf) fd.append('csrf_token', csrf.value);
 
-    fetch('api_ai_copilot.php', { method: 'POST', body: fd })
-        .then(function (r) { return r.json(); })
-        .then(function (data) {
-            btn.disabled = false;
-            btn.textContent = 'Analyze report';
-            if (!data.ok) {
-                body.innerHTML = '<div class="ai-empty">Xiinxaluun hin milkoofne. Ammas yaali.</div>';
-                return;
-            }
-            aiLastResult = data;
-
-            var html = '';
-            html += '<div class="ai-summary">"' + aiEsc(data.summary) + '"</div>';
-            html += aiChip('Category', data.category && data.category.name, data.category && data.category.confidence);
-            html += aiChip('Priority', data.priority && data.priority.value, data.priority && data.priority.confidence);
-            html += aiChip('Address', data.address && data.address.name, data.address && data.address.confidence);
-            html += aiChip('Department', data.department && data.department.name, data.department && data.department.confidence);
-
-            if (data.duplicates && data.duplicates.length) {
-                html += '<div class="ai-dup-list"><div class="ai-dup-title">⚠️ Gabaasa wal-fakkaatu argame:</div>';
-                data.duplicates.forEach(function (d) {
-                    html += '<div class="ai-dup-item"><span class="mono">' + aiEsc(d.tracking_code) + '</span>' +
-                            ' — ' + aiEsc(d.address || '—') + ' (' + aiEsc(d.created_at) + ')</div>';
-                });
-                html += '</div>';
-            }
-
-            var canApply = (data.category && data.category.id) || (data.priority && data.priority.value) ||
-                            (data.address && data.address.name) || (data.department && data.department.id);
-            if (canApply) {
-                html += '<button type="button" class="btn-ai apply" onclick="aiApplySuggestions()">✓ Apply suggestions</button>';
-            }
-
-            body.innerHTML = html;
-        })
-        .catch(function () {
-            btn.disabled = false;
-            btn.textContent = 'Analyze report';
-            body.innerHTML = '<div class="ai-empty">Dogoggora network. Ammas yaali.</div>';
+  fetch('api_ai_copilot.php', { method: 'POST', body: fd })
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      btn.disabled = false;
+      btn.textContent = 'Analyze report';
+      if (!data || !data.ok) {
+        body.innerHTML = '<div class="ai-empty">Analysis failed. Irra deebi\'ii yaali.</div>';
+        return;
+      }
+      _aiLast = data;
+      var html = '';
+      if (data.summary) {
+        html += '<div class="ai-row"><strong>Summary:</strong> ' + escapeHtml(data.summary) + '</div>';
+      }
+      if (data.suggested_action) {
+        html += '<div class="ai-row" style="color:var(--cyan);"><strong>→ Action:</strong> ' + escapeHtml(data.suggested_action) + '</div>';
+      }
+      // Category
+      var cat = data.category || {};
+      html += '<div class="ai-row"><strong>Category:</strong> ';
+      if (cat.id) {
+        html += escapeHtml(cat.name || cat.slug || '') + aiConfBadge(cat.confidence);
+        if (cat.matched_on) html += ' <span class="muted" style="font-size:12px;">(keyword: ' + escapeHtml(cat.matched_on) + ')</span>';
+      } else {
+        html += '<span class="muted">Review manually</span>';
+      }
+      html += '</div>';
+      // Priority
+      var pri = data.priority || {};
+      html += '<div class="ai-row"><strong>Priority:</strong> ';
+      if (pri.value) {
+        html += escapeHtml(pri.value) + aiConfBadge(pri.confidence);
+      } else {
+        html += '<span class="muted">Review manually</span>';
+      }
+      html += '</div>';
+      // Address
+      var addr = data.address || {};
+      html += '<div class="ai-row"><strong>Location:</strong> ';
+      if (addr.name) {
+        html += escapeHtml(addr.name) + aiConfBadge(addr.confidence);
+      } else {
+        html += '<span class="muted">Review manually</span>';
+      }
+      html += '</div>';
+      // Department
+      var dep = data.department || {};
+      html += '<div class="ai-row"><strong>Department:</strong> ';
+      if (dep.id) {
+        html += escapeHtml(dep.name) + aiConfBadge(dep.confidence);
+      } else {
+        html += '<span class="muted">Review manually</span>';
+      }
+      html += '</div>';
+      // Duplicates
+      if (data.duplicates && data.duplicates.length) {
+        html += '<div class="ai-row" style="color:#b45309;"><strong>⚠ Possible duplicates:</strong><ul style="margin:4px 0 0 18px;">';
+        data.duplicates.forEach(function (d) {
+          html += '<li>' + escapeHtml(d.tracking_code || '') + ' · ' + escapeHtml(d.address || '') + ' · sim ' + (d.similarity || 0) + '</li>';
         });
+        html += '</ul></div>';
+      }
+      html += '<div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:8px;">';
+      html += '<button type="button" class="btn-ai apply" onclick="aiApplySuggestions(false)">✓ Apply suggestions</button>';
+      html += '<button type="button" class="btn-ai" style="background:#0f766e;" onclick="aiApplySuggestions(true)">✓ Apply high-confidence only</button>';
+      html += '</div>';
+      body.innerHTML = html;
+    })
+    .catch(function () {
+      btn.disabled = false;
+      btn.textContent = 'Analyze report';
+      body.innerHTML = '<div class="ai-empty">Network error.</div>';
+    });
 }
 
-function aiApplySuggestions() {
-    if (!aiLastResult) return;
-    var data = aiLastResult;
-
-    if (data.category && data.category.id) {
-        var catSel = document.querySelector('select[name="category_id"][data-for="manual"]');
-        if (catSel) catSel.value = data.category.id;
-    }
-    if (data.priority && data.priority.value) {
-        var prSel = document.querySelector('select[name="priority"][data-for="manual"]');
-        if (prSel) prSel.value = data.priority.value;
-    }
-    if (data.address && data.address.name) {
-        var addrSel = document.getElementById('operatorAddressArea');
-        if (addrSel) {
-            for (var i = 0; i < addrSel.options.length; i++) {
-                if (addrSel.options[i].value === data.address.name) { addrSel.selectedIndex = i; break; }
-            }
-        }
-    }
-    if (data.department && data.department.id) {
-        var deptSel = document.querySelector('select[name="department_id"]');
-        if (deptSel) deptSel.value = data.department.id;
-    }
-
-    var btns = document.querySelectorAll('.btn-ai.apply');
-    btns.forEach(function (b) { b.textContent = '✓ Applied'; b.disabled = true; });
+function escapeHtml(s) {
+  return String(s || '').replace(/[&<>"']/g, function (c) {
+    return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c];
+  });
 }
+
+function aiApplySuggestions(highOnly) {
+  if (!_aiLast) return;
+  highOnly = !!highOnly;
+  var data = _aiLast;
+  var applied = [];
+
+  function confOk(c) {
+    c = (c || 'none').toLowerCase();
+    if (highOnly) return c === 'high';
+    return c === 'high' || c === 'medium';
+  }
+
+  // Category select
+  if (data.category && data.category.id && confOk(data.category.confidence)) {
+    var catSel = document.querySelector('[name="category_id"]');
+    if (catSel) { catSel.value = String(data.category.id); applied.push('category'); }
+  }
+  // Priority
+  if (data.priority && data.priority.value && confOk(data.priority.confidence)) {
+    var priSel = document.querySelector('[name="priority"]');
+    if (priSel) { priSel.value = data.priority.value; applied.push('priority'); }
+  }
+  // Location / address
+  if (data.address && data.address.name && confOk(data.address.confidence)) {
+    var loc = document.querySelector('[name="location"]');
+    if (loc && !loc.value.trim()) { loc.value = data.address.name; applied.push('location'); }
+    else if (loc && loc.value.trim() === '') { loc.value = data.address.name; applied.push('location'); }
+    // lat/lng if fields exist
+    if (data.address.lat != null) {
+      var lat = document.querySelector('[name="latitude"]');
+      var lng = document.querySelector('[name="longitude"]');
+      if (lat) lat.value = data.address.lat;
+      if (lng) lng.value = data.address.lng;
+    }
+  }
+  // Department
+  if (data.department && data.department.id && confOk(data.department.confidence)) {
+    var depSel = document.querySelector('[name="assigned_department_id"], [name="department_id"]');
+    if (depSel) { depSel.value = String(data.department.id); applied.push('department'); }
+  }
+
+  var body = document.getElementById('aiCopilotBody');
+  var msg = applied.length
+    ? '✓ Applied: ' + applied.join(', ') + '. Please review, then register the event.'
+    : 'No fields met the confidence filter — review manually.';
+  var note = document.createElement('div');
+  note.className = 'ai-row';
+  note.style.color = applied.length ? '#16a34a' : '#b45309';
+  note.style.marginTop = '8px';
+  note.textContent = msg;
+  body.appendChild(note);
+}
+
+
 </script>
 <script src="../assets/call-center-voice-video.js"></script>
 <footer style="

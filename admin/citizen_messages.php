@@ -35,10 +35,13 @@ try {
 } catch (Throwable $e) {}
 
 foreach ([
-    'reply_message' => "ALTER TABLE citizen_help ADD COLUMN reply_message TEXT DEFAULT NULL",
-    'replied_by'    => "ALTER TABLE citizen_help ADD COLUMN replied_by INT DEFAULT NULL",
-    'replied_name'  => "ALTER TABLE citizen_help ADD COLUMN replied_name VARCHAR(150) DEFAULT NULL",
-    'replied_at'    => "ALTER TABLE citizen_help ADD COLUMN replied_at TIMESTAMP NULL DEFAULT NULL",
+    'reply_message'   => "ALTER TABLE citizen_help ADD COLUMN reply_message TEXT DEFAULT NULL",
+    'replied_by'      => "ALTER TABLE citizen_help ADD COLUMN replied_by INT DEFAULT NULL",
+    'replied_name'    => "ALTER TABLE citizen_help ADD COLUMN replied_name VARCHAR(150) DEFAULT NULL",
+    'replied_at'      => "ALTER TABLE citizen_help ADD COLUMN replied_at TIMESTAMP NULL DEFAULT NULL",
+    'message_type'    => "ALTER TABLE citizen_help ADD COLUMN message_type VARCHAR(20) NOT NULL DEFAULT 'text' AFTER message",
+    'attachment_path' => "ALTER TABLE citizen_help ADD COLUMN attachment_path VARCHAR(500) DEFAULT NULL AFTER message_type",
+    'attachment_name' => "ALTER TABLE citizen_help ADD COLUMN attachment_name VARCHAR(255) DEFAULT NULL AFTER attachment_path",
 ] as $col => $sql) {
     try {
         $chk = $pdo->query("SHOW COLUMNS FROM citizen_help LIKE " . $pdo->quote($col))->fetch();
@@ -206,7 +209,17 @@ $dir = t_raw('dir');
                     <td><?= htmlspecialchars($h['phone'] ?? '—') ?></td>
                     <td><?= htmlspecialchars($h['tracking_code'] ?? '—') ?></td>
                     <td>
+                        <?php
+                          $hType = $h['message_type'] ?? 'text';
+                          $hPath = $h['attachment_path'] ?? '';
+                          if ($hPath !== '' && $hType === 'voice'):
+                        ?>
+                            <div style="margin-bottom:6px;">
+                              <audio controls src="../<?= htmlspecialchars($hPath) ?>" style="max-width:220px;"></audio>
+                            </div>
+                        <?php endif; ?>
                         <?= nl2br(htmlspecialchars($h['message'])) ?>
+                        <?php if ($hType === 'voice'): ?><span style="font-size:11px;color:var(--muted);"> · 🎤</span><?php endif; ?>
                         <?php if ($st === 'new'): ?>
                             <div style="margin-top:6px;"><a href="?seen=<?= $hid ?>"><?= t('citizen_mark_seen') ?></a></div>
                         <?php endif; ?>

@@ -127,11 +127,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif ($action === 'supervisor_dm' && !empty($can_supervisor_dm)) {
         $dm = trim($_POST['supervisor_message'] ?? '');
         $u = current_user();
-        if (supervisor_message_add($pdo, $id, $dm, (int)($u['id'] ?? $_SESSION['user_id'] ?? 0), $u['full_name'] ?? ($u['name'] ?? 'Supervisor'))) {
+        $msgType = $_POST['message_type'] ?? 'text';
+        if (!in_array($msgType, ['text', 'emoji', 'image', 'voice', 'video'], true)) $msgType = 'text';
+        $attachPath = null;
+        $attachName = null;
+        if (!empty($_FILES['sm_file']['name']) && ($_FILES['sm_file']['error'] ?? 1) === UPLOAD_ERR_OK) {
+            $uploadType = $msgType;
+            if ($uploadType === 'text' || $uploadType === 'emoji') {
+                $finfo = finfo_open(FILEINFO_MIME_TYPE);
+                $mime = finfo_file($finfo, $_FILES['sm_file']['tmp_name']);
+                finfo_close($finfo);
+                if (str_starts_with($mime, 'image/')) $uploadType = 'image';
+                elseif (str_starts_with($mime, 'audio/')) $uploadType = 'voice';
+                elseif (str_starts_with($mime, 'video/')) $uploadType = 'video';
+                else $uploadType = 'image';
+            }
+            $attachPath = sm_save_attachment($_FILES['sm_file'], $uploadType);
+            if ($attachPath) { $msgType = $uploadType; $attachName = $_FILES['sm_file']['name'] ?? null; }
+        }
+        if (!$attachPath && !empty($_POST['voice_b64'])) {
+            $attachPath = sm_save_base64($_POST['voice_b64'], 'voice', 'webm');
+            if ($attachPath) { $msgType = 'voice'; $attachName = 'voice.webm'; }
+        }
+        if (!$attachPath && !empty($_POST['video_b64'])) {
+            $attachPath = sm_save_base64($_POST['video_b64'], 'video', 'webm');
+            if ($attachPath) { $msgType = 'video'; $attachName = 'video.webm'; }
+        }
+        if (supervisor_message_add($pdo, $id, $dm, (int)($u['id'] ?? $_SESSION['user_id'] ?? 0), $u['full_name'] ?? ($u['name'] ?? 'Supervisor'), $msgType, $attachPath, $attachName)) {
             $message = t_raw('sup_dm_sent');
             try {
                 require_once __DIR__ . '/../includes/activity.php';
-                log_activity($pdo, 'supervisor_dm', 'Supervisor DM on ' . ($report['tracking_code'] ?? ''), 'event', $id, mb_substr($dm, 0, 200));
+                log_activity($pdo, 'supervisor_dm', 'Supervisor DM on ' . ($report['tracking_code'] ?? ''), 'event', $id, mb_substr($dm !== '' ? $dm : $msgType, 0, 200));
             } catch (Throwable $e) {}
         } else {
             $message = t_raw('error_required');
@@ -382,12 +408,55 @@ $dir = t_raw('dir');
             <p class="muted" style="font-size:12px;"><?= t('sup_dm_reported_at') ?>: <?= htmlspecialchars($report['created_at']) ?></p>
         <?php else: ?>
             <p class="muted" style="font-size:13px;"><?= t('sup_dm_hint') ?></p>
-            <form method="post">
+            <form method="post" enctype="multipart/form-data">
                 <?= csrf_field() ?>
                 <input type="hidden" name="action" value="supervisor_dm">
-                <textarea name="supervisor_message" rows="3" required placeholder="<?= t_raw('sup_dm_placeholder') ?>" style="width:100%;"></textarea>
+                <input type="hidden" name="message_type" id="rpt_msg_type" value="text">
+                <input type="hidden" name="voice_b64" id="rpt_voice_b64" value="">
+                <input type="hidden" name="video_b64" id="rpt_video_b64" value="">
+                <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;">
+                    <button type="button" onclick="document.getElementById('rptEmoji').style.display=document.getElementById('rptEmoji').style.display==='flex'?'none':'flex'" style="padding:5px 10px;border-radius:8px;border:1px solid var(--border);background:var(--panel-2);cursor:pointer;">😊</button>
+                    <label style="padding:5px 10px;border-radius:8px;border:1px solid var(--border);background:var(--panel-2);cursor:pointer;">📷<input type="file" name="sm_file" accept="image/*" style="display:none;" onchange="document.getElementById('rpt_msg_type').value='image'"></label>
+                    <button type="button" id="rptBtnVoice" style="padding:5px 10px;border-radius:8px;border:1px solid var(--border);background:var(--panel-2);cursor:pointer;">🎤</button>
+                    <button type="button" id="rptBtnVideo" style="padding:5px 10px;border-radius:8px;border:1px solid var(--border);background:var(--panel-2);cursor:pointer;">🎬</button>
+                    <label style="padding:5px 10px;border-radius:8px;border:1px solid var(--border);background:var(--panel-2);cursor:pointer;">📎<input type="file" name="sm_file" accept="image/*,audio/*,video/*" style="display:none;" onchange="var f=this.files[0];if(f){var t=f.type.startsWith('image/')?'image':f.type.startsWith('audio/')?'voice':'video';document.getElementById('rpt_msg_type').value=t;}"></label>
+                </div>
+                <div id="rptEmoji" style="display:none;flex-wrap:wrap;gap:4px;margin-bottom:8px;">
+                    <?php foreach (['😀','😂','👍','🙏','🔥','✅','⚠️','🚨','📍','📞','❤️','⭐'] as $e): ?>
+                        <span style="font-size:20px;cursor:pointer;" onclick="var t=document.querySelector('[name=supervisor_message]');t.value+=this.textContent;document.getElementById('rpt_msg_type').value='emoji';"><?= $e ?></span>
+                    <?php endforeach; ?>
+                </div>
+                <textarea name="supervisor_message" rows="3" placeholder="<?= t_raw('sup_dm_placeholder') ?>" style="width:100%;"></textarea>
                 <button type="submit" style="margin-top:8px;"><?= t('sup_dm_send') ?></button>
             </form>
+            <script>
+            (function(){
+              var vr=null,vc=[],vs=null;
+              document.getElementById('rptBtnVoice')?.addEventListener('click',async function(){
+                var b=this;
+                if(vr&&vr.state==='recording'){vr.stop();b.textContent='🎤';return;}
+                try{
+                  vs=await navigator.mediaDevices.getUserMedia({audio:true});vc=[];
+                  vr=new MediaRecorder(vs);
+                  vr.ondataavailable=function(e){if(e.data.size)vc.push(e.data);};
+                  vr.onstop=function(){var bl=new Blob(vc,{type:'audio/webm'});var r=new FileReader();r.onloadend=function(){document.getElementById('rpt_voice_b64').value=(r.result||'').split(',')[1]||'';document.getElementById('rpt_msg_type').value='voice';document.getElementById('rpt_video_b64').value='';};r.readAsDataURL(bl);vs.getTracks().forEach(function(t){t.stop();});};
+                  vr.start();b.textContent='⏹';
+                }catch(e){alert(e.message||e.name);}
+              });
+              var vr2=null,vc2=[],vs2=null;
+              document.getElementById('rptBtnVideo')?.addEventListener('click',async function(){
+                var b=this;
+                if(vr2&&vr2.state==='recording'){vr2.stop();b.textContent='🎬';return;}
+                try{
+                  vs2=await navigator.mediaDevices.getUserMedia({audio:true,video:true});vc2=[];
+                  vr2=new MediaRecorder(vs2);
+                  vr2.ondataavailable=function(e){if(e.data.size)vc2.push(e.data);};
+                  vr2.onstop=function(){var bl=new Blob(vc2,{type:'video/webm'});var r=new FileReader();r.onloadend=function(){document.getElementById('rpt_video_b64').value=(r.result||'').split(',')[1]||'';document.getElementById('rpt_msg_type').value='video';document.getElementById('rpt_voice_b64').value='';};r.readAsDataURL(bl);vs2.getTracks().forEach(function(t){t.stop();});};
+                  vr2.start();b.textContent='⏹';
+                }catch(e){alert(e.message||e.name);}
+              });
+            })();
+            </script>
         <?php endif; ?>
         <?php if (!empty($citizenDms)): ?>
             <div style="margin-top:14px;">
@@ -398,7 +467,7 @@ $dir = t_raw('dir');
                             <?= htmlspecialchars(trim(($sm['citizen_name'] ?? '') . ' ' . ($sm['citizen_phone'] ?? '')) ?: t_raw('sup_dm_citizen_label')) ?>
                             · <?= htmlspecialchars($sm['created_at']) ?>
                         </div>
-                        <div style="margin-top:4px;"><?= nl2br(htmlspecialchars($sm['message'])) ?></div>
+                        <div style="margin-top:4px;"><?= sm_render_body($sm) ?></div>
                     </div>
                 <?php endforeach; ?>
             </div>
@@ -409,7 +478,7 @@ $dir = t_raw('dir');
                 <?php foreach ($outDms as $sm): ?>
                     <div style="padding:10px 12px; border:1px solid var(--border); border-radius:8px; margin-top:8px; background:var(--panel-2);">
                         <div style="font-size:12px; color:var(--muted);"><?= htmlspecialchars($sm['supervisor_name'] ?? 'Supervisor') ?> · <?= htmlspecialchars($sm['created_at']) ?></div>
-                        <div style="margin-top:4px;"><?= nl2br(htmlspecialchars($sm['message'])) ?></div>
+                        <div style="margin-top:4px;"><?= sm_render_body($sm) ?></div>
                     </div>
                 <?php endforeach; ?>
             </div>

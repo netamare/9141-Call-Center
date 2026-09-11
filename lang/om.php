@@ -65,7 +65,7 @@ return [
 
     // Public citizen help form
     'citizen_help_page_title' => 'Gargaarsa',
-    'citizen_help_heading_public' => '🆘 Gargaarsa / Help',
+    'citizen_help_heading_public' => '🆘 Gargaarsa',
     'citizen_help_intro' => 'Gaaffiin kee admin fi operator-ootaaf (urgent) ni ergamti.',
     'citizen_help_name' => 'Maqaa',
     'citizen_help_phone' => 'Bilbila',
@@ -88,8 +88,6 @@ return [
     'btn_help_short' => "Gargaarsa",
     'btn_feedback_short' => "Yaada",
     'btn_about_short' => "Waa'ee",
-    'btn_login_short' => 'Seeni',
-    'nav_notifications' => 'Beeksisa',
     'contact_supervisor_hint' => "Koodii hordoffii kee galchi. Yoo dhimmi kee amma hin furamne, Supervisor-tti yeroo kamiyyuu ergaa erguu dandeessa.",
 
     'track_case_status_title' => "Waa'ee dhimma kee",
@@ -161,7 +159,7 @@ return [
 
     // SMS fi Maapii Yeroo Real-time (v7)
     'nav_live_map' => 'Maapii Yeroo Real-time',
-    'nav_cameras' => 'Room Kaameraa / AI Detection',
+    'nav_cameras' => 'Room Kaameraa',
     'cameras_intro' => 'Fuula room to\'annoo kaameraa: viidiyoonni hundi gosa rakkoo 4 (al-seerummaa, nageenya, tajaajila, balaa) irratti qoodaman. Yeroo, bakka fi gosa irratti filter godhi. AI rakkoo trafica, hanna fi naannoo isaa detect godha.',
     'cameras_date_from' => 'Guyyaa irraa',
     'cameras_date_to' => 'Guyyaa hanga',
@@ -189,8 +187,8 @@ return [
     'cameras_record_done' => 'Viidiyoon location waliin olkaa\'ameera',
     'cameras_record_timeout' => 'Galmeessi amma xumuramaa jiraa – tab Recorded ilaali',
     'cameras_tab_upload' => 'Upload Taateewwanii',
-    'cameras_upload_title' => 'Upload Taateewwanii – Viidiyoo ykn Suuraa (GPS Automatic)',
-    'cameras_upload_intro' => 'Miidiyaa olkaa\'i fi taatee (event) haaraa uumi. GPS ofumaan fudhama. Faayilli folder uploads/ keessatti olkaa\'ama; Tab Recorded fi Maapii Live irratti mul\'ata.',
+    'cameras_upload_title' => 'Upload Taateewwanii – Viidiyoo ykn Suuraa ',
+    'cameras_upload_intro' => 'Miidiyaa olkaa\'i fi taatee (event) haaraa uumi. Faayilli folder uploads/ keessatti olkaa\'ama;.',
     'cameras_upload_file' => 'Faayila filadhu',
     'cameras_upload_type' => 'Gosa',
     'cameras_upload_location' => 'Bakka',
@@ -398,7 +396,6 @@ return [
     'notif_mark_read' => 'Hunda dubbifame godhi',
     'notif_empty' => "Hanga ammaatti beeksisni hin jiru.",
     'theme_toggle' => 'Ifaa/Dukkanaa jijjiiri',
-    'night_mode' => 'Haala Halkanii',
     'system_live' => 'Moosaajiin Hojii irra Jira',
     'share_copied' => 'Liinkiin garagalfame!',
     'error_word_limit' => 'Maaloo ibsa kee gara jecha %d ykn gadiitti gabaabsi.',
