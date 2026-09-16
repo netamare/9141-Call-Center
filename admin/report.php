@@ -118,7 +118,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $message = t_raw('btn_save_changes');
         }
 
-    } elseif ($action === 'delete_report' && $role === 'administrator') {
+    } elseif ($action === 'delete_report' && in_array($role, ['administrator', 'supervisor'], true)) {
         $del = $pdo->prepare("DELETE FROM events WHERE id = ?");
         $del->execute([$id]);
         header('Location: dashboard.php?deleted=1');
@@ -501,7 +501,7 @@ $dir = t_raw('dir');
         </table>
     </div>
 
-    <?php if ($role === 'administrator'): ?>
+    <?php if (in_array($role, ['administrator', 'supervisor'], true)): ?>
     <div class="card" style="border-color:rgba(226,87,76,0.35);">
         <h2 style="color:var(--red);"><?= t('danger_zone') ?></h2>
         <p class="muted" style="font-size:13px;"><?= t('delete_report_hint') ?></p>

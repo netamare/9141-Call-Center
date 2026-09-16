@@ -79,7 +79,7 @@ $citizen_notif_count = isset($citizen_notif_count) ? (int)$citizen_notif_count :
             </button>
             <a class="public-nav-btn<?= $active_nav === 'login' ? ' is-active' : '' ?>" href="admin/login.php">
                 <span class="nav-icon" aria-hidden="true">🔑</span>
-                <span><?= function_exists('t') ? t('btn_login_short') : 'Log In' ?></span>
+                <span><?= function_exists('t') ? t('Log In') : 'Log In' ?></span>
             </a>
         </div>
     </nav>
@@ -101,17 +101,10 @@ $citizen_notif_count = isset($citizen_notif_count) ? (int)$citizen_notif_count :
         </a>
 
 
-
-
-
-
-
-
-
         
         <a class="public-nav-btn<?= $active_nav === 'login' ? ' is-active' : '' ?>" href="admin/login.php">
             <span class="nav-icon" aria-hidden="true">🔑</span>
-            <span><?= function_exists('t') ? t('btn_login_short') : 'Log In' ?></span>
+            <span><?= function_exists('t') ? t('Log In') : 'Log In' ?></span>
         </a>
     </nav>
 

@@ -5,7 +5,7 @@ if (session_status() === PHP_SESSION_NONE) {
 require_once __DIR__ . '/../config.php';
 require_once __DIR__ . '/lang.php';
 
-if (!isset($_SESSION['user_id'])) {
+if (empty($_SESSION['user_id'])) {
     header('Location: login.php');
     exit;
 }
@@ -30,7 +30,15 @@ $_SESSION['last_activity'] = time();
  * (camera_operator = Control Room role for video cameras + AI detection of the 4 problem categories).
  */
 function current_role() {
-    return strtolower(trim((string)($_SESSION['user_role'] ?? '')));
+    $r = strtolower(trim((string)($_SESSION['user_role'] ?? $_SESSION['role'] ?? '')));
+    $map = [
+        'admin' => 'administrator',
+        'dept_officer' => 'department_officer',
+        'department' => 'department_officer',
+        'camera' => 'camera_operator',
+        'control_room' => 'camera_operator',
+    ];
+    return $map[$r] ?? $r;
 }
 
 /** Restrict a page to specific roles. Call after requiring auth.php.

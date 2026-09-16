@@ -96,8 +96,6 @@ return [
     'btn_help_short' => "Help",
     'btn_feedback_short' => "Feedback",
     'btn_about_short' => "About",
-    'btn_login_short' => 'Log In',
-    'nav_notifications' => 'Notifications',
     'contact_supervisor_hint' => "Enter your tracking code. While your case is still open, you can message the Supervisor at any time.",
     'track_case_wait_days' => "Please wait %d more day(s). After 7 days without resolution you can message the Supervisor.",
     'track_case_can_message' => "You can write a direct message to the Supervisor below at any time while this case is open.",
@@ -171,7 +169,7 @@ return [
     'label_password' => 'Password',
     'btn_login' => 'Log in',
     'login_error' => 'Invalid username or password.',
-    'login_default_hint' => 'who are you admin/op/sup/dept off',
+    'login_default_hint' => 'Default: who are you admin/op/sup/dept off',
     'login_locked' => 'Too many failed attempts. Try again in',
 
     // Site structure / navigation (per project specification)
@@ -333,7 +331,6 @@ return [
     'notif_mark_read' => 'Mark all read',
     'notif_empty' => 'No notifications yet.',
     'theme_toggle' => 'Toggle light / dark',
-    'night_mode' => 'Night Mode',
     'system_live' => 'System Live',
     'share_copied' => 'Link copied to clipboard!',
     'error_word_limit' => 'Please shorten your description to %d words or fewer.',

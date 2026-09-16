@@ -3,14 +3,21 @@ require __DIR__ . '/../config.php';
 require __DIR__ . '/../includes/lang.php';
 require __DIR__ . '/../includes/security.php';
 
-if (isset($_SESSION['user_id'])) {
-    header('Location: dashboard.php');
-    exit;
+// Always show the login form when this page is opened.
+// Stale / wrong-role sessions used to redirect to dashboard → access denied loop.
+// Opening login.php intentionally clears any previous staff session.
+if (!empty($_SESSION['user_id']) && empty($_GET['stay'])) {
+    $_SESSION = [];
+    if (session_status() === PHP_SESSION_ACTIVE) {
+        session_regenerate_id(true);
+    }
 }
 
 $error = null;
 if (isset($_GET['timeout'])) {
     $error = 'Your session expired due to inactivity. Please log in again.';
+} elseif (isset($_GET['reauth'])) {
+    $error = 'Please log in with a valid staff account.';
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -41,7 +48,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         session_regenerate_id(true);
         $_SESSION['user_id'] = $user['id'];
         $_SESSION['user_name'] = $user['full_name'] ?? $user['username'];
-        $_SESSION['user_role'] = $user['role'];
+        $rawRole = strtolower(trim((string)($user['role'] ?? '')));
+        $roleMap = [
+            'admin' => 'administrator',
+            'dept_officer' => 'department_officer',
+            'department' => 'department_officer',
+            'camera' => 'camera_operator',
+            'control_room' => 'camera_operator',
+        ];
+        $_SESSION['user_role'] = $roleMap[$rawRole] ?? $rawRole;
+        $_SESSION['role'] = $_SESSION['user_role'];
         $_SESSION['user_department_id'] = $user['department_id'] ?? null;
         try {
             require_once __DIR__ . '/../includes/activity.php';
