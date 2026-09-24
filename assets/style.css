@@ -1803,16 +1803,26 @@ tr:hover td { background: var(--panel-2); }
   margin: 0 0 6px;
 }
 .auth-field-icon {
-  display: inline-flex;
+  display: inline-flex !important;
   align-items: center;
   justify-content: center;
-  width: 17px;
-  height: 17px;
+  box-sizing: border-box !important;
+  width: 17px !important;
+  height: 17px !important;
+  min-width: 17px !important;
+  min-height: 17px !important;
+  max-width: 17px !important;
+  max-height: 17px !important;
+  flex-shrink: 0 !important;
   color: var(--cyan);
 }
 .auth-field-icon svg {
-  width: 16px;
-  height: 16px;
+  display: block !important;
+  width: 16px !important;
+  height: 16px !important;
+  max-width: 16px !important;
+  max-height: 16px !important;
+  flex-shrink: 0 !important;
 }
 .auth-input-wrap {
   position: relative;
@@ -1904,6 +1914,11 @@ tr:hover td { background: var(--panel-2); }
   top: 50%;
   width: 19px !important;
   height: 19px !important;
+  max-width: 19px !important;
+  max-height: 19px !important;
+  flex-shrink: 0 !important;
+  box-sizing: border-box !important;
+  display: block !important;
   color: var(--cyan) !important;
   transform: translateY(-50%);
   z-index: 2;
