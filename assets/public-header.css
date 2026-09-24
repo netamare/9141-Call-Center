@@ -1,0 +1,87 @@
+/* ============================================================
+   Public header toggle — same look as the admin dashboard toggle:
+   plain navy 3-line menu button (no blue box, no yellow dot),
+   leftmost in the fixed header. Loaded AFTER style.css.
+   ============================================================ */
+header.public-header .nav-toggle {
+  order: -1;
+  display: inline-flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+  position: relative;
+  width: 44px;
+  height: 44px;
+  margin: 0;
+  padding: 0;
+  border: none;
+  border-radius: 12px;
+  background: transparent;
+  box-shadow: none;
+  filter: none;
+  cursor: pointer;
+  flex-shrink: 0;
+  visibility: visible;
+  opacity: 1;
+  transition: background .15s ease, transform .18s ease;
+}
+header.public-header .nav-toggle:hover,
+header.public-header .nav-toggle:focus-visible {
+  background: var(--cyan-soft, #EEF4FF);
+  transform: none;
+  filter: none;
+  box-shadow: none;
+  outline: none;
+}
+header.public-header .nav-toggle:focus-visible {
+  outline: 2px solid var(--cyan, #1E3A8A);
+  outline-offset: 2px;
+}
+header.public-header .nav-toggle:active {
+  transform: scale(0.94);
+}
+
+/* no yellow dot */
+header.public-header .nav-toggle::before {
+  display: none !important;
+}
+
+/* three equal navy lines */
+header.public-header .nav-toggle-bar,
+header.public-header .nav-toggle-bar:nth-child(1),
+header.public-header .nav-toggle-bar:nth-child(2),
+header.public-header .nav-toggle-bar:nth-child(3) {
+  display: block;
+  width: 24px;
+  height: 3px;
+  margin: 0;
+  border-radius: 2px;
+  background: var(--cyan, #1E3A8A);
+  transform-origin: center;
+  transition: transform .25s ease, opacity .2s ease;
+}
+
+/* open = X (line pitch = 3px bar + 4px gap = 7px) */
+header.public-header .nav-toggle[aria-expanded="true"] .nav-toggle-bar:nth-child(1) {
+  width: 24px;
+  margin: 0;
+  transform: translateY(7px) rotate(45deg);
+}
+header.public-header .nav-toggle[aria-expanded="true"] .nav-toggle-bar:nth-child(2) {
+  width: 24px;
+  margin: 0;
+  opacity: 0;
+}
+header.public-header .nav-toggle[aria-expanded="true"] .nav-toggle-bar:nth-child(3) {
+  width: 24px;
+  margin: 0;
+  transform: translateY(-7px) rotate(-45deg);
+}
+
+@media (max-width: 640px) {
+  header.public-header .nav-toggle {
+    width: 38px;
+    height: 38px;
+  }
+}

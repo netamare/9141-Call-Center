@@ -18,6 +18,7 @@ $header_subtitle = $header_subtitle ?? (function_exists('t') ? t('site_subtitle'
 $active_nav      = $active_nav ?? '';
 $citizen_notif_count = isset($citizen_notif_count) ? (int)$citizen_notif_count : 0;
 ?>
+<link rel="stylesheet" href="assets/public-header.css?v=<?= @filemtime(__DIR__ . '/../assets/public-header.css') ?: time() ?>">
 <header class="public-header">
     <div class="brand">
         <a href="index.php" class="brand-link" aria-label="Home">
@@ -89,22 +90,22 @@ $citizen_notif_count = isset($citizen_notif_count) ? (int)$citizen_notif_count :
     <nav class="public-nav-quick" aria-label="Quick actions">
         <a class="public-nav-btn public-nav-btn--home<?= $active_nav === 'home' ? ' is-active' : '' ?>" href="index.php">
             <span class="nav-icon" aria-hidden="true">🏠</span>
-            <span><?= function_exists('t') ? t('Home') : 'Home' ?></span>
+            <span><?= function_exists('t') ? t('Home'):'Home' ?></span>
         </a>
         <a class="public-nav-btn<?= $active_nav === 'about' ? ' is-active' : '' ?>" href="about.php">
             <span class="nav-icon" aria-hidden="true">ℹ️</span>
-            <span><?= function_exists('t') ? t('btn_about_short') : 'About' ?></span>
+            <span><?= function_exists('t') ? t('btn_about_short') :'About' ?></span>
         </a>
         <a class="public-nav-btn<?= $active_nav === 'help' ? ' is-active' : '' ?>" href="citizen_help.php">
             <span class="nav-icon" aria-hidden="true">🆘</span>
-            <span><?= function_exists('t') ? t('btn_help_short') : 'Help' ?></span>
+            <span><?= function_exists('t') ? t('btn_help_short'):'Help' ?></span>
         </a>
 
 
         
         <a class="public-nav-btn<?= $active_nav === 'login' ? ' is-active' : '' ?>" href="admin/login.php">
             <span class="nav-icon" aria-hidden="true">🔑</span>
-            <span><?= function_exists('t') ? t('Log In') : 'Log In' ?></span>
+            <span><?= function_exists('t') ? t('Log In'):'Log In' ?></span>
         </a>
     </nav>
 

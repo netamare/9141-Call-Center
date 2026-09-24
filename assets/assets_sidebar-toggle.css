@@ -1,4 +1,4 @@
-/* Telegram-style 3-line toggle — only this button */
+
 .sidebar-toggle {
   display: flex;
   position: fixed;
@@ -88,7 +88,6 @@ body.sidebar-open .sidebar-toggle-dot { opacity: 0; }
   }
   .main { padding-top: 64px; }
 }
-/* Desktop: always show sidebar; button still toggles collapse to icons optional */
 @media (min-width: 901px) {
   .sidebar-toggle { left: 14px; }
 }

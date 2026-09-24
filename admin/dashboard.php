@@ -145,6 +145,7 @@ $dir = t_raw('dir');
 <title><?= t('dash_title') ?></title>
 <link rel="icon" href="../assets/logo-adama.png">
 <link rel="stylesheet" href="../assets/style.css">
+<link rel="stylesheet" href="../assets/sidebar-toggle.css">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
 </head>
 <body>
@@ -163,18 +164,35 @@ $dir = t_raw('dir');
     </div>
     <?php endif; ?>
 
-    <div class="top-actions" style="margin-bottom:20px;">
-        <div>
-            <div class="eyebrow" style="font-family:var(--mono); font-size:10.5px; letter-spacing:2px; text-transform:uppercase; color:var(--cyan); margin-bottom:6px;">
-                <?= t('role_' . $role) ?> <?= t('nav_dashboard') ?>
-            </div>
-            <h2 style="margin:0;"><?= t('dash_title') ?></h2>
-            <div class="muted" style="font-size:13px; margin-top:4px;">
-                <?= $role === 'administrator' ? t('site_subtitle') : ($role === 'department_officer' ? htmlspecialchars($departments[array_search($myDeptId, array_column($departments,'id'))]['name'] ?? '') : t('site_subtitle')) ?>
-            </div>
+    <!-- ===== HEADER EXACT LIKE PHOTO ===== -->
+    <div class="top-actions" id="topHeader">
+        <!-- Hamburger + Logo + Brand -->
+        <div class="header-left" style="display:flex;align-items:center;gap:12px;flex-shrink:0;">
+            <button type="button" class="sidebar-toggle" id="sidebarToggle" aria-controls="adminSidebar" aria-expanded="false" aria-label="Menu" title="Menu">
+                <span class="sidebar-toggle-icon" aria-hidden="true"><span></span><span></span><span></span></span>
+            </button>
+            <a href="dashboard.php" class="header-brand" style="display:flex;align-items:center;gap:11px;text-decoration:none;color:inherit;">
+                <div class="header-brand-mark">
+                    <img src="../assets/logo-adama.png" alt="Adama City">
+                </div>
+                <div class="header-brand-text">
+                    <div class="header-brand-name">Adama City<br>9141 CallCenter</div>
+                    <div class="header-brand-sub">SYSTEM ADMINISTRATION</div>
+                </div>
+            </a>
         </div>
+
+        <!-- Center title -->
+        <div style="flex:1;text-align:center;min-width:0;">
+            <div class="eyebrow">BULCHAA DAASHBOORDII</div>
+            <h2 style="margin:0;"><?= t('dash_title') ?></h2>
+            <div class="muted"><?= t('site_subtitle') ?></div>
+        </div>
+
+        <!-- Right controls -->
         <div class="topbar-controls"><?php render_topbar_controls(); render_lang_switcher(); ?></div>
     </div>
+    <!-- ===== END HEADER ===== -->
 
     <h2 style="margin-top:0"><?= t('dash_services') ?></h2>
     <div class="services-grid">

@@ -61,7 +61,7 @@ function role_icon_svg($role) {
     return $icons[$role] ?? $icons['operator'];
 }
 ?>
-<link rel="stylesheet" href="../assets/sidebar-toggle.css">
+<link rel="stylesheet" href="../assets/sidebar-toggle.css?v=<?= @filemtime(__DIR__ . '/../assets/sidebar-toggle.css') ?: time() ?>">
 <div class="sidebar-overlay" id="sidebarOverlay"></div>
 <aside class="sidebar" id="adminSidebar">
     <a href="dashboard.php" class="brand">
@@ -424,4 +424,4 @@ document.addEventListener('DOMContentLoaded', function(){
   </a>
 </div>
 
-<script src="../assets/sidebar-toggle.js"></script>
+<script src="../assets/sidebar-toggle.js?v=<?= @filemtime(__DIR__ . '/../assets/sidebar-toggle.js') ?: time() ?>"></script>
