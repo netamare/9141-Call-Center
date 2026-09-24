@@ -48,9 +48,9 @@ $__ph = function ($key, $fallback) {
         <span class="nav-toggle-bar"></span>
     </button>
 
-    <!-- Collapsed behind the hamburger toggle at every screen size: Home, About, Help, Notifications,
-         Feedback, Supervisor, Night Mode, Log In (in that order, with a small gap above Log In).
-         On mobile this renders as a stacked list; same dropdown card on desktop. -->
+    <!-- Toggle content (all screen sizes): Home, About, Help, Notifications, Feedback,
+         Supervisor, Night Mode, Log In — always one vertical drop-down list, with a small
+         gap above Log In. -->
     <nav class="public-nav" id="publicNav" aria-label="Main">
         <div class="public-nav-inner">
             <a class="public-nav-btn public-nav-btn--home<?= $active_nav === 'home' ? ' is-active' : '' ?>" href="index.php">
@@ -94,7 +94,7 @@ $__ph = function ($key, $fallback) {
         </div>
     </nav>
 
-    <!-- Duplicate of Home/About/Help/Notifications/Log In — visible on the header on desktop/tablet,
+    <!-- Duplicate of Home/About/Help/Feedback/Log In — shown in the header row on desktop,
          hidden on mobile (there they exist only inside the toggle above) -->
     <nav class="public-nav-quick" aria-label="Quick actions">
         <a class="public-nav-btn public-nav-btn--home<?= $active_nav === 'home' ? ' is-active' : '' ?>" href="index.php">
@@ -109,9 +109,10 @@ $__ph = function ($key, $fallback) {
             <span class="nav-icon" aria-hidden="true">🆘</span>
             <span><?= function_exists('t') ? t('btn_help_short'):'Help' ?></span>
         </a>
-
-
-        
+        <a class="public-nav-btn<?= $active_nav === 'feedback' ? ' is-active' : '' ?>" href="citizen_feedback.php">
+            <span class="nav-icon" aria-hidden="true">💬</span>
+            <span><?= function_exists('t') ? t('btn_feedback_short') : 'Feedback' ?></span>
+        </a>
         <a class="public-nav-btn<?= $active_nav === 'login' ? ' is-active' : '' ?>" href="admin/login.php">
             <span class="nav-icon" aria-hidden="true">🔑</span>
             <span><?= function_exists('t') ? t('Log In'):'Log In' ?></span>

@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Responsive Design Examples - Adama 9141</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #F0F4FA;
+            --panel: #FFFFFF;
+            --border: #E2E8F0;
+            --cyan: #1E3A8A;
+            --text: #0F172A;
+            --muted: #475569;
+            --faint: #94A3B8;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px 16px;
+        }
+
+        @media (min-width: 768px) {
+            .container {
+                padding: 40px 24px;
+            }
+        }
+
+        @media (min-width: 1100px) {
+            .container {
+                padding: 60px 32px;
+            }
+        }
+
+        h1 {
+            font-size: 28px;
+            margin-bottom: 24px;
+            color: var(--cyan);
+        }
+
+        @media (min-width: 1100px) {
+            h1 {
+                font-size: 36px;
+            }
+        }
+
+        h2 {
+            font-size: 20px;
+            margin: 32px 0 16px;
+            color: var(--cyan);
+        }
+
+        .example {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            margin-bottom: 24px;
+        }
+
+        .code {
+            background: #f5f5f5;
+            padding: 12px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            margin: 12px 0;
+            border-left: 3px solid var(--cyan);
+        }
+
+        /* ============================================================
+           RESPONSIVE NAVIGATION EXAMPLE
+           ============================================================ */
+
+        .nav-demo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            flex-wrap: wrap;
+        }
+
+        .nav-demo-brand {
+            font-weight: 600;
+            color: var(--cyan);
+            flex: 0 0 auto;
+        }
+
+        .nav-demo-toggle {
+            display: inline-flex;
+            flex-direction: column;
+            gap: 4px;
+            padding: 8px;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            border-radius: 6px;
+        }
+
+        .nav-demo-toggle span {
+            width: 20px;
+            height: 2px;
+            background: var(--cyan);
+            border-radius: 2px;
+        }
+
+        .nav-demo-menu {
+            display: none;
+            flex-direction: row;
+            gap: 8px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            width: 100%;
+            padding: 8px 0;
+        }
+
+        .nav-demo-menu.active {
+            display: flex;
+        }
+
+        .nav-demo-item {
+            padding: 8px 12px;
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        @media (min-width: 768px) {
+            .nav-demo-toggle {
+                display: none;
+            }
+
+            .nav-demo-menu {
+                display: flex !important;
+                width: auto;
+                padding: 0;
+            }
+        }
+
+        /* ============================================================
+           RESPONSIVE GRID EXAMPLE
+           ============================================================ */
+
+        .grid-demo {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
+
+        @media (min-width: 480px) {
+            .grid-demo {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (min-width: 1100px) {
+            .grid-demo {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        .grid-item {
+            background: var(--panel);
+            padding: 20px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .grid-item-number {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--cyan);
+            margin-bottom: 8px;
+        }
+
+        /* ============================================================
+           RESPONSIVE FLEX EXAMPLE
+           ============================================================ */
+
+        .flex-demo {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        @media (min-width: 768px) {
+            .flex-demo {
+                flex-direction: row;
+            }
+        }
+
+        .flex-item {
+            flex: 1;
+            background: var(--panel);
+            padding: 20px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+        }
+
+        .flex-item-title {
+            font-weight: 600;
+            color: var(--cyan);
+            margin-bottom: 8px;
+        }
+
+        /* ============================================================
+           RESPONSIVE TYPOGRAPHY EXAMPLE
+           ============================================================ */
+
+        .typo-demo h3 {
+            font-size: 18px;
+            margin-top: 16px;
+            margin-bottom: 8px;
+            color: var(--cyan);
+        }
+
+        @media (min-width: 768px) {
+            .typo-demo h3 {
+                font-size: 20px;
+            }
+        }
+
+        .typo-demo p {
+            font-size: 14px;
+            margin-bottom: 12px;
+            color: var(--muted);
+        }
+
+        @media (min-width: 768px) {
+            .typo-demo p {
+                font-size: 15px;
+            }
+        }
+
+        /* ============================================================
+           RESPONSIVE BUTTON EXAMPLE
+           ============================================================ */
+
+        .btn-demo-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        @media (min-width: 768px) {
+            .btn-demo-group {
+                flex-direction: row;
+            }
+        }
+
+        .btn-demo {
+            flex: 1;
+            padding: 12px 16px;
+            background: var(--cyan);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+
+        .btn-demo:hover {
+            background: #152A66;
+        }
+
+        /* ============================================================
+           RESPONSIVE FORM EXAMPLE
+           ============================================================ */
+
+        .form-demo {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .form-row {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        @media (min-width: 768px) {
+            .form-row {
+                flex-direction: row;
+            }
+
+            .form-row .form-group {
+                flex: 1;
+            }
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .form-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 14px;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--cyan);
+        }
+
+        /* ============================================================
+           RESPONSIVE IMAGE EXAMPLE
+           ============================================================ */
+
+        .image-demo {
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .image-demo img {
+            width: 100%;
+            height: auto;
+            border-radius: 12px;
+        }
+
+        /* ============================================================
+           RESPONSIVE TABLE EXAMPLE
+           ============================================================ */
+
+        .table-demo {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table-demo th,
+        .table-demo td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .table-demo th {
+            background: var(--panel-2);
+            font-weight: 600;
+        }
+
+        .table-demo tr:hover {
+            background: var(--panel-2);
+        }
+
+        @media (max-width: 768px) {
+            .table-demo {
+                font-size: 12px;
+            }
+
+            .table-demo th,
+            .table-demo td {
+                padding: 8px;
+            }
+        }
+
+        .note {
+            background: #FEF3C7;
+            padding: 12px;
+            border-left: 3px solid #D97706;
+            border-radius: 6px;
+            margin: 12px 0;
+            font-size: 13px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            background: #EEF4FF;
+            color: var(--cyan);
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📱 Responsive Design Examples</h1>
+        <p style="color: var(--muted); margin-bottom: 32px;">
+            Best practices for mobile-first responsive design. Resize your browser to see changes.
+        </p>
+
+        <!-- ============================================================
+             NAVIGATION EXAMPLE
+             ============================================================ -->
+        <section class="example">
+            <h2>1. Responsive Navigation (Mobile-First)</h2>
+            <p style="color: var(--muted); margin-bottom: 16px;">
+                On mobile: Hamburger menu with horizontal scrolling items<br>
+                On desktop: Full navigation visible in header
+            </p>
+            
+            <div class="nav-demo">
+                <div class="nav-demo-brand">🏛️ Adama</div>
+                <button class="nav-demo-toggle" onclick="toggleNav(this)">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+                <div class="nav-demo-menu">
+                    <div class="nav-demo-item">🏠 Home</div>
+                    <div class="nav-demo-item">ℹ️ About</div>
+                    <div class="nav-demo-item">🆘 Help</div>
+                    <div class="nav-demo-item">🔔 Notify</div>
+                    <div class="nav-demo-item">💬 Feedback</div>
+                    <div class="nav-demo-item">📞 Contact</div>
+                    <div class="nav-demo-item">🌙 Dark</div>
+                    <div class="nav-demo-item">🔑 Login</div>
+                </div>
+            </div>
+
+            <div class="code">
+&lt;nav&gt;
+  &lt;!-- Mobile: hamburger toggle --&gt;
+  &lt;button class="nav-toggle"&gt;☰&lt;/button&gt;
+  
+  &lt;!-- Horizontal menu (shown when toggle clicked) --&gt;
+  &lt;div class="nav-menu"&gt;
+    &lt;a class="nav-item"&gt;Home&lt;/a&gt;
+    &lt;a class="nav-item"&gt;About&lt;/a&gt;
+    ...
+  &lt;/div&gt;
+&lt;/nav&gt;
+            </div>
+
+            <div class="note">
+                💡 <strong>Tip:</strong> Use <code>flex-direction: row</code> for horizontal layout.
+                On mobile use <code>overflow-x: auto</code> for scrolling menu.
+            </div>
+        </section>
+
+        <!-- ============================================================
+             GRID EXAMPLE
+             ============================================================ -->
+        <section class="example">
+            <h2>2. Responsive Grid</h2>
+            <p style="color: var(--muted); margin-bottom: 16px;">
+                Mobile: 1 column → Tablet: 2 columns → Desktop: 3 columns
+            </p>
+
+            <div class="grid-demo">
+                <div class="grid-item">
+                    <div class="grid-item-number">1</div>
+                    <p style="font-size: 12px;">Mobile First</p>
+                </div>
+                <div class="grid-item">
+                    <div class="grid-item-number">2</div>
+                    <p style="font-size: 12px;">Responsive</p>
+                </div>
+                <div class="grid-item">
+                    <div class="grid-item-number">3</div>
+                    <p style="font-size: 12px;">Flexible</p>
+                </div>
+            </div>
+
+            <div class="code">
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;        /* Mobile: 1 column */
+  gap: 16px;
+}
+
+@media (min-width: 480px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);  /* Tablet: 2 columns */
+  }
+}
+
+@media (min-width: 1100px) {
+  .grid {
+    grid-template-columns: repeat(3, 1fr);  /* Desktop: 3 columns */
+  }
+}
+            </div>
+        </section>
+
+        <!-- ============================================================
+             FLEXBOX EXAMPLE
+             ============================================================ -->
+        <section class="example">
+            <h2>3. Responsive Flexbox (2-Column Layout)</h2>
+            <p style="color: var(--muted); margin-bottom: 16px;">
+                Mobile: Stack vertically → Desktop: Side by side
+            </p>
+
+            <div class="flex-demo">
+                <div class="flex-item">
+                    <div class="flex-item-title">Content</div>
+                    <p style="font-size: 13px; color: var(--muted);">
+                        This section stacks on mobile and appears side-by-side on desktop
+                    </p>
+                </div>
+                <div class="flex-item">
+                    <div class="flex-item-title">Sidebar</div>
+                    <p style="font-size: 13px; color: var(--muted);">
+                        Perfect for main content + sidebar layouts
+                    </p>
+                </div>
+            </div>
+
+            <div class="code">
+.flex-container {
+  display: flex;
+  flex-direction: column;    /* Mobile: stack */
+  gap: 16px;
+}
+
+@media (min-width: 768px) {
+  .flex-container {
+    flex-direction: row;     /* Desktop: side-by-side */
+  }
+}
+            </div>
+        </section>
+
+        <!-- ============================================================
+             TYPOGRAPHY EXAMPLE
+             ============================================================ -->
+        <section class="example">
+            <h2>4. Responsive Typography</h2>
+            <p style="color: var(--muted); margin-bottom: 16px;">
+                Font sizes scale appropriately for different screen sizes
+            </p>
+
+            <div class="typo-demo">
+                <h3>Heading (scales: 18px → 20px → 24px)</h3>
+                <p>
+                    Body text should be readable on all devices. Mobile text: 14px, Desktop: 15px
+                </p>
+                <p>
+                    Line height should be generous for readability. Aim for 1.5-1.6 on body text.
+                </p>
+            </div>
+
+            <div class="code">
+/* Mobile first */
+h1 { font-size: 24px; }
+p  { font-size: 14px; }
+
+@media (min-width: 768px) {
+  h1 { font-size: 28px; }
+  p  { font-size: 15px; }
+}
+
+@media (min-width: 1100px) {
+  h1 { font-size: 36px; }
+  p  { font-size: 16px; }
+}
+            </div>
+
+            <div class="note">
+                ✅ Always ensure text is readable: minimum 14px on mobile, 16px on desktop
+            </div>
+        </section>
+
+        <!-- ============================================================
+             FORM EXAMPLE
+             ============================================================ -->
+        <section class="example">
+            <h2>5. Responsive Forms</h2>
+            <p style="color: var(--muted); margin-bottom: 16px;">
+                Full-width inputs on mobile, side-by-side on desktop
+            </p>
+
+            <form class="form-demo">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">First Name *</label>
+                        <input type="text" class="form-input" placeholder="Your first name" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Last Name *</label>
+                        <input type="text" class="form-input" placeholder="Your last name" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Email *</label>
+                    <input type="email" class="form-input" placeholder="your@email.com" required>
+                </div>
+
+                <div class="btn-demo-group">
+                    <button type="submit" class="btn-demo">Submit</button>
+                    <button type="reset" class="btn-demo" style="background: #94A3B8;">Clear</button>
+                </div>
+            </form>
+
+            <div class="code">
+@media (min-width: 768px) {
+  .form-row {
+    display: flex;
+    gap: 16px;
+  }
+  
+  .form-row .form-group {
+    flex: 1;
+  }
+}
+            </div>
+        </section>
+
+        <!-- ============================================================
+             BUTTON EXAMPLE
+             ============================================================ -->
+        <section class="example">
+            <h2>6. Responsive Buttons</h2>
+            <p style="color: var(--muted); margin-bottom: 16px;">
+                Full-width on mobile, auto-width on desktop. Min 44px height for touch.
+            </p>
+
+            <div class="btn-demo-group">
+                <button class="btn-demo">Primary Button</button>
+                <button class="btn-demo" style="background: #94A3B8;">Secondary Button</button>
+                <button class="btn-demo" style="background: #DC2626;">Danger Button</button>
+            </div>
+
+            <div class="code">
+.btn {
+  padding: 12px 16px;        /* Min 44px height */
+  width: 100%;                /* Full-width on mobile */
+  font-size: 14px;
+  font-weight: 600;
+}
+
+@media (min-width: 768px) {
+  .btn {
+    width: auto;              /* Auto-width on desktop */
+    padding: 10px 20px;
+  }
+}
+            </div>
+
+            <div class="note">
+                ✅ <strong>Touch-friendly:</strong> Minimum 44x44px for button targets
+            </div>
+        </section>
+
+        <!-- ============================================================
+             SUMMARY
+             ============================================================ -->
+        <section class="example" style="background: #EEF4FF; border-color: var(--cyan);">
+            <h2 style="color: var(--cyan);">📋 Mobile-First Checklist</h2>
+            
+            <div style="display: grid; grid-template-columns: 1fr; gap: 12px; font-size: 14px;">
+                <label style="display: flex; gap: 8px; cursor: pointer;">
+                    <input type="checkbox"> Start with mobile styles (no media query)
+                </label>
+                <label style="display: flex; gap: 8px; cursor: pointer;">
+                    <input type="checkbox"> Use <code>flex-direction: column</code> for mobile
+                </label>
+                <label style="display: flex; gap: 8px; cursor: pointer;">
+                    <input type="checkbox"> Add tablet breakpoint at 768px
+                </label>
+                <label style="display: flex; gap: 8px; cursor: pointer;">
+                    <input type="checkbox"> Add desktop breakpoint at 1100px
+                </label>
+                <label style="display: flex; gap: 8px; cursor: pointer;">
+                    <input type="checkbox"> Test with viewport tool (F12)
+                </label>
+                <label style="display: flex; gap: 8px; cursor: pointer;">
+                    <input type="checkbox"> Use <code>overflow-x: auto</code> for scrolling content
+                </label>
+                <label style="display: flex; gap: 8px; cursor: pointer;">
+                    <input type="checkbox"> Buttons minimum 44px x 44px
+                </label>
+                <label style="display: flex; gap: 8px; cursor: pointer;">
+                    <input type="checkbox"> Use <code>max-width: 100%</code> on images
+                </label>
+                <label style="display: flex; gap: 8px; cursor: pointer;">
+                    <input type="checkbox"> Test on real phones/tablets
+                </label>
+            </div>
+        </section>
+
+        <footer style="margin-top: 60px; padding: 20px 0; border-top: 1px solid var(--border); text-align: center; color: var(--muted); font-size: 13px;">
+            <p>Adama City Administration 9141 Call Center</p>
+            <p>Responsive Design Best Practices - September 2026</p>
+        </footer>
+    </div>
+
+    <script>
+        function toggleNav(button) {
+            const menu = button.nextElementSibling;
+            menu.classList.toggle('active');
+        }
+    </script>
+</body>
+</html>

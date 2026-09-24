@@ -1,242 +1,341 @@
 /* ============================================================
-   Public header toggle — same look as the admin dashboard toggle:
-   plain navy 3-line menu button (no blue box, no yellow dot),
-   leftmost in the fixed header. Loaded AFTER style.css.
+   Public header — toggle + quick links
+   Loaded AFTER assets/style.css (linked from includes/public_header.php),
+   so these rules win over the older header rules in style.css.
+
+   MOBILE  (<= 900px)
+     Header row : toggle · logo · language, search bar underneath.
+     Toggle     : ALL links (Home, About, Help, Notifications, Feedback,
+                  Supervisor, Night Mode, Log In) in ONE vertical drop-down list.
+
+   DESKTOP (>= 901px)
+     Header row : Home · About · Help · Feedback · Log In are shown directly.
+     Toggle     : still visible; opens the SAME vertical drop-down list
+                  with every link (the ones above + Notifications,
+                  Supervisor, Night Mode).
    ============================================================ */
+
+/* ---------- Toggle button: visible on every screen size ---------- */
 header.public-header .nav-toggle {
+  display: flex !important;
   order: -1;
-  display: inline-flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  gap: 4px;
-  position: relative;
-  width: 44px;
-  height: 44px;
+}
+
+/* Open state = a clean X (bars pinned to the centre of the button) */
+header.public-header .nav-toggle[aria-expanded="true"] .nav-toggle-bar:nth-child(1),
+header.public-header .nav-toggle[aria-expanded="true"] .nav-toggle-bar:nth-child(3) {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20px;
   margin: 0;
-  padding: 0;
-  border: none;
-  border-radius: 12px;
-  background: transparent;
-  box-shadow: none;
-  filter: none;
-  cursor: pointer;
-  flex-shrink: 0;
-  visibility: visible;
-  opacity: 1;
-  transition: background .15s ease, transform .18s ease;
 }
-header.public-header .nav-toggle:hover,
-header.public-header .nav-toggle:focus-visible {
-  background: var(--cyan-soft, #EEF4FF);
-  transform: none;
-  filter: none;
-  box-shadow: none;
-  outline: none;
-}
-header.public-header .nav-toggle:focus-visible {
-  outline: 2px solid var(--cyan, #1E3A8A);
-  outline-offset: 2px;
-}
-header.public-header .nav-toggle:active {
-  transform: scale(0.94);
-}
-
-/* no yellow dot */
-header.public-header .nav-toggle::before {
-  display: none !important;
-}
-
-/* three equal navy lines */
-header.public-header .nav-toggle-bar,
-header.public-header .nav-toggle-bar:nth-child(1),
-header.public-header .nav-toggle-bar:nth-child(2),
-header.public-header .nav-toggle-bar:nth-child(3) {
-  display: block;
-  width: 24px;
-  height: 3px;
-  margin: 0;
-  border-radius: 2px;
-  background: var(--cyan, #1E3A8A);
-  transform-origin: center;
-  transition: transform .25s ease, opacity .2s ease;
-}
-
-/* open = X (line pitch = 3px bar + 4px gap = 7px) */
 header.public-header .nav-toggle[aria-expanded="true"] .nav-toggle-bar:nth-child(1) {
-  width: 24px;
-  margin: 0;
-  transform: translateY(7px) rotate(45deg);
-}
-header.public-header .nav-toggle[aria-expanded="true"] .nav-toggle-bar:nth-child(2) {
-  width: 24px;
-  margin: 0;
-  opacity: 0;
+  transform: translate(-50%, -50%) rotate(45deg);
 }
 header.public-header .nav-toggle[aria-expanded="true"] .nav-toggle-bar:nth-child(3) {
-  width: 24px;
+  transform: translate(-50%, -50%) rotate(-45deg);
+}
+
+/* ---------- Drop-down card (toggle content) — always vertical ---------- */
+header.public-header .public-nav {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 14px;
+  width: 250px;
+  max-width: calc(100vw - 28px);
+  margin: 8px 0 0;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  z-index: 150;
+}
+
+header.public-header .public-nav.is-open {
+  display: block;
+}
+
+header.public-header .public-nav .public-nav-inner {
+  display: flex !important;
+  flex-direction: column !important;
+  flex-wrap: nowrap !important;
+  align-items: stretch !important;
+  gap: 8px !important;
+  padding: 12px !important;
+  width: 100%;
+  max-height: calc(100vh - 96px);
+  max-height: calc(100dvh - 96px);
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  box-sizing: border-box;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: var(--shadow-md, 0 12px 32px rgba(15, 23, 42, .18));
+}
+
+/* Every item: one full-width row, icon on the left, label next to it */
+header.public-header .public-nav .public-nav-inner .public-nav-btn,
+header.public-header .public-nav .public-nav-inner .public-nav-btn--home,
+header.public-header .public-nav .public-nav-inner .public-nav-btn--supervisor,
+header.public-header .public-nav .public-nav-inner .public-nav-btn--notif,
+header.public-header .public-nav .public-nav-inner .public-nav-btn--theme {
+  flex: 0 0 auto !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 10px !important;
+  width: 100% !important;
+  height: 44px !important;
+  min-height: 44px !important;
+  margin: 0 !important;
+  padding: 0 14px !important;
+  box-sizing: border-box;
+  border-radius: 12px !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  line-height: 1.2 !important;
+  text-align: left;
+  white-space: nowrap;
+  position: relative;
+}
+
+header.public-header .public-nav .public-nav-inner .public-nav-btn .nav-icon {
+  flex: 0 0 22px;
+  width: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 17px;
+  line-height: 1;
+}
+
+header.public-header .public-nav .public-nav-inner .public-nav-btn span:not(.nav-icon):not(.notif-badge) {
+  display: block;
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: none;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Notification counter sits at the right end of its row */
+header.public-header .public-nav .public-nav-inner .notif-badge {
+  position: static;
+  margin-left: auto;
+  box-shadow: none;
+}
+
+/* Small deliberate gap above Log In (last item) */
+header.public-header .public-nav .public-nav-inner .public-nav-btn[href="admin/login.php"] {
+  margin-top: 8px !important;
+  background: #1E3A8A !important;
+  border-color: #1E3A8A !important;
+  color: #FFFFFF !important;
+}
+header.public-header .public-nav .public-nav-inner .public-nav-btn[href="admin/login.php"]:hover,
+header.public-header .public-nav .public-nav-inner .public-nav-btn[href="admin/login.php"]:focus-visible {
+  background: #152A66 !important;
+  border-color: #152A66 !important;
+  color: #FFFFFF !important;
+}
+
+/* Active page highlight inside the list */
+header.public-header .public-nav .public-nav-inner .public-nav-btn.is-active {
+  background: #EFF6FF !important;
+  border-color: #93C5FD !important;
+  color: #1E3A8A !important;
+  font-weight: 700 !important;
+}
+header.public-header .public-nav .public-nav-inner .public-nav-btn[href="admin/login.php"].is-active {
+  background: #152A66 !important;
+  color: #FFFFFF !important;
+}
+
+/* ---------- Quick links in the header row (desktop only) ---------- */
+header.public-header .public-nav-quick {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 6px;
+  flex: 0 0 auto;
+  flex-shrink: 0;
+  min-width: 0;
   margin: 0;
-  transform: translateY(-7px) rotate(-45deg);
+  order: 0;
 }
 
-@media (max-width: 640px) {
-  header.public-header .nav-toggle {
-    width: 38px;
-    height: 38px;
-  }
+header.public-header .public-nav-quick .public-nav-btn {
+  flex: 0 0 auto;
+  flex-direction: row;
+  height: 40px;
+  padding: 0 14px;
+  font-size: 13px;
 }
 
-/* ============================================================
-   MOBILE + TABLET (<= 1100px)
-   Problem fixed: the header wrapped into 2-3 rows but stayed
-   position:fixed with a fixed 64px body offset, so it covered the
-   top of every page, and the in-header quick buttons overlapped the
-   brand on tablets. Now the header sits in normal flow (sticky), so
-   it can never cover content, and the menu list keeps one size.
-   ============================================================ */
-@media (max-width: 1100px) {
-  header.public-header {
-    position: sticky !important;
-    top: 0 !important;
-    left: 0 !important;
-    right: auto !important;
-    width: 100%;
-    min-height: 0;
-    padding: 8px 12px;
-    gap: 8px 10px;
-    flex-wrap: nowrap;
-    align-items: center;
-  }
-  body:has(header.public-header) {
-    padding-top: 0;
-  }
+header.public-header .public-nav-quick .public-nav-btn[href="admin/login.php"] {
+  background: #1E3A8A !important;
+  border-color: #1E3A8A !important;
+  color: #FFFFFF !important;
+}
+header.public-header .public-nav-quick .public-nav-btn[href="admin/login.php"]:hover,
+header.public-header .public-nav-quick .public-nav-btn[href="admin/login.php"]:focus-visible {
+  background: #152A66 !important;
+  border-color: #152A66 !important;
+  color: #FFFFFF !important;
+}
 
-  /* row order: [toggle] [brand ........] [search] [language] */
-  header.public-header .nav-toggle { order: 0; }
-  header.public-header .brand {
-    order: 1;
-    flex: 1 1 0;
-    min-width: 140px;
-  }
-  header.public-header .brand > div { min-width: 0; }
-  header.public-header .brand-title,
-  header.public-header .brand-subtitle {
-    max-width: 100%;
-  }
-  header.public-header .header-search {
-    order: 2;
-    flex: 0 1 300px !important;
-    min-width: 180px !important;
-    max-width: 340px !important;
-    margin: 0 !important;
-  }
-  header.public-header .header-actions {
-    order: 3;
-    margin-left: 0;
-    flex-shrink: 0;
-  }
-
-  /* the duplicate quick buttons only fit on desktop; on mobile/tablet everything is in the menu */
+/* ---------- MOBILE / small tablet (<= 900px) ---------- */
+@media (max-width: 900px) {
+  /* Quick links live only inside the toggle here */
   header.public-header .public-nav-quick {
     display: none !important;
   }
 
-  /* ---- Menu card: same button size on every phone/tablet, scrolls if the screen is short ---- */
-  header.public-header .public-nav {
-    order: 5;
-    top: 100%;
-    left: 12px;
-    right: auto;
-    width: min(360px, calc(100vw - 24px));
-    max-width: none;
-    margin-top: 6px;
-  }
-  html[dir="rtl"] header.public-header .public-nav {
-    left: auto;
-    right: 12px;
-  }
-  header.public-header .public-nav-inner {
-    display: flex !important;
-    flex-direction: column !important;
-    flex-wrap: nowrap !important;
-    gap: 8px !important;
-    padding: 10px !important;
-    max-height: calc(100vh - 130px);
-    max-height: calc(100dvh - 130px);
-    overflow-y: auto;
-    overscroll-behavior: contain;
-    -webkit-overflow-scrolling: touch;
-  }
-  header.public-header .public-nav-inner .public-nav-btn,
-  header.public-header .public-nav-inner .public-nav-btn--home,
-  header.public-header .public-nav-inner .public-nav-btn--supervisor,
-  header.public-header .public-nav-inner .public-nav-btn--notif,
-  header.public-header .public-nav-inner .public-nav-btn--theme {
-    flex: 0 0 auto !important;
-    flex-direction: row !important;
-    width: 100% !important;
-    height: 44px !important;
-    min-height: 44px !important;
-    padding: 0 16px !important;
-    gap: 10px !important;
-    font-size: 14px !important;
-    font-weight: 600 !important;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  header.public-header .public-nav-inner .public-nav-btn[href="admin/login.php"] {
-    margin-top: 8px !important;
-  }
-  header.public-header .public-nav-inner .nav-icon {
-    flex: 0 0 auto;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 20px;
-    font-size: 15px;
-  }
-}
-
-/* phones: search drops to its own full-width row under the toggle/brand/language row */
-@media (max-width: 600px) {
+  /* Row 1: toggle · logo/title · language.  Row 2: search bar. */
   header.public-header {
     flex-wrap: wrap;
+    padding: 8px 12px;
+    gap: 8px 10px;
+    min-height: 0;
   }
   header.public-header .brand {
+    order: 1;
+    flex: 1 1 0;
     min-width: 0;
+  }
+  header.public-header .header-actions {
+    order: 2;
+    margin-left: 0;
+  }
+  header.public-header .header-actions select {
+    width: auto;
+    max-width: 104px;
+    padding: 7px 8px !important;
+    font-size: 12px !important;
+    border-radius: 10px !important;
   }
   header.public-header .header-search {
     order: 4;
     flex: 0 0 100% !important;
-    min-width: 0 !important;
     max-width: 100% !important;
+    min-width: 0 !important;
+    height: 38px !important;
     margin: 0 !important;
   }
-  header.public-header .public-nav {
-    left: 10px;
-    right: 10px;
-    width: auto;
+  /* keep page content clear of the two-row fixed header */
+  body:has(header.public-header) {
+    padding-top: 112px;
   }
-  header.public-header .header-actions select {
-    max-width: 132px;
-    padding: 6px 4px 6px 8px;
-    font-size: 12px;
+
+  /* Drop-down spans the screen width under the header */
+  header.public-header .public-nav {
+    left: 12px;
+    right: 12px;
+    width: auto;
+    max-width: none;
+  }
+
+  header.public-header .public-nav .public-nav-inner {
+    max-height: calc(100vh - 80px);
+    max-height: calc(100dvh - 80px);
   }
 }
 
-/* ============================================================
-   Menu items live ONLY inside the toggle on phones and tablets
-   (any width, portrait or landscape). The duplicate quick buttons
-   in the header (Home / Waa'ee / Gargaarsa / Log In) are shown on
-   mouse-driven desktop screens only, and the menu list opens only
-   when the toggle is pressed.
-   ============================================================ */
-@media (max-width: 1100px), (hover: none) and (pointer: coarse) {
+/* ---------- DESKTOP (>= 901px) ---------- */
+@media (min-width: 901px) {
   header.public-header .public-nav-quick {
-    display: none !important;
+    display: flex !important;
+  }
+
+  /* Language selector stays on the far right */
+  header.public-header .header-actions {
+    margin-left: auto;
+  }
+
+  /* The page behind the drop-down must stay scrollable */
+  body.nav-open {
+    overflow: auto;
   }
 }
-header.public-header .public-nav:not(.is-open) {
-  display: none !important;
+
+/* Narrow desktops / landscape tablets (901px - 1200px):
+   Row 1 = toggle · logo/title · Home About Help Feedback Log In · language,
+   Row 2 = search bar (so nothing overlaps). */
+@media (min-width: 901px) and (max-width: 1200px) {
+  header.public-header {
+    flex-wrap: wrap;
+    padding: 8px 14px;
+    gap: 8px 10px;
+    min-height: 0;
+  }
+  header.public-header .brand {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+  header.public-header .brand-eyebrow,
+  header.public-header .brand-subtitle {
+    display: none;
+  }
+  header.public-header .brand-title {
+    max-width: 170px;
+  }
+  header.public-header .public-nav-quick {
+    flex-shrink: 0;
+    gap: 4px;
+  }
+  header.public-header .public-nav-quick .public-nav-btn {
+    padding: 0 12px;
+    font-size: 12.5px;
+  }
+  header.public-header .public-nav-quick .nav-icon {
+    display: none;
+  }
+  header.public-header .header-actions {
+    order: 3;
+  }
+  header.public-header .header-search {
+    order: 4;
+    flex: 0 0 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    height: 38px !important;
+    margin: 0 !important;
+  }
+  body:has(header.public-header) {
+    padding-top: 112px;
+  }
+}
+
+/* ---------- Dark mode ---------- */
+html[data-theme="dark"] header.public-header .public-nav .public-nav-inner .public-nav-btn:not([href="admin/login.php"]) {
+  background: var(--panel-2, #1E293B) !important;
+  border-color: var(--border) !important;
+  color: var(--text) !important;
+}
+html[data-theme="dark"] header.public-header .public-nav .public-nav-inner .public-nav-btn:not([href="admin/login.php"]):hover,
+html[data-theme="dark"] header.public-header .public-nav .public-nav-inner .public-nav-btn:not([href="admin/login.php"]):focus-visible,
+html[data-theme="dark"] header.public-header .public-nav .public-nav-inner .public-nav-btn.is-active:not([href="admin/login.php"]) {
+  background: var(--cyan-soft) !important;
+  color: var(--cyan) !important;
+}
+
+/* ---------- Print ---------- */
+@media print {
+  header.public-header {
+    position: static !important;
+    border-bottom: 2px solid var(--text);
+    margin-bottom: 20px;
+  }
+  header.public-header .public-nav,
+  header.public-header .public-nav-quick,
+  header.public-header .header-search,
+  header.public-header .nav-toggle {
+    display: none !important;
+  }
 }
