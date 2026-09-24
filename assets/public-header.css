@@ -85,3 +85,158 @@ header.public-header .nav-toggle[aria-expanded="true"] .nav-toggle-bar:nth-child
     height: 38px;
   }
 }
+
+/* ============================================================
+   MOBILE + TABLET (<= 1100px)
+   Problem fixed: the header wrapped into 2-3 rows but stayed
+   position:fixed with a fixed 64px body offset, so it covered the
+   top of every page, and the in-header quick buttons overlapped the
+   brand on tablets. Now the header sits in normal flow (sticky), so
+   it can never cover content, and the menu list keeps one size.
+   ============================================================ */
+@media (max-width: 1100px) {
+  header.public-header {
+    position: sticky !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: auto !important;
+    width: 100%;
+    min-height: 0;
+    padding: 8px 12px;
+    gap: 8px 10px;
+    flex-wrap: nowrap;
+    align-items: center;
+  }
+  body:has(header.public-header) {
+    padding-top: 0;
+  }
+
+  /* row order: [toggle] [brand ........] [search] [language] */
+  header.public-header .nav-toggle { order: 0; }
+  header.public-header .brand {
+    order: 1;
+    flex: 1 1 0;
+    min-width: 140px;
+  }
+  header.public-header .brand > div { min-width: 0; }
+  header.public-header .brand-title,
+  header.public-header .brand-subtitle {
+    max-width: 100%;
+  }
+  header.public-header .header-search {
+    order: 2;
+    flex: 0 1 300px !important;
+    min-width: 180px !important;
+    max-width: 340px !important;
+    margin: 0 !important;
+  }
+  header.public-header .header-actions {
+    order: 3;
+    margin-left: 0;
+    flex-shrink: 0;
+  }
+
+  /* the duplicate quick buttons only fit on desktop; on mobile/tablet everything is in the menu */
+  header.public-header .public-nav-quick {
+    display: none !important;
+  }
+
+  /* ---- Menu card: same button size on every phone/tablet, scrolls if the screen is short ---- */
+  header.public-header .public-nav {
+    order: 5;
+    top: 100%;
+    left: 12px;
+    right: auto;
+    width: min(360px, calc(100vw - 24px));
+    max-width: none;
+    margin-top: 6px;
+  }
+  html[dir="rtl"] header.public-header .public-nav {
+    left: auto;
+    right: 12px;
+  }
+  header.public-header .public-nav-inner {
+    display: flex !important;
+    flex-direction: column !important;
+    flex-wrap: nowrap !important;
+    gap: 8px !important;
+    padding: 10px !important;
+    max-height: calc(100vh - 130px);
+    max-height: calc(100dvh - 130px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+  header.public-header .public-nav-inner .public-nav-btn,
+  header.public-header .public-nav-inner .public-nav-btn--home,
+  header.public-header .public-nav-inner .public-nav-btn--supervisor,
+  header.public-header .public-nav-inner .public-nav-btn--notif,
+  header.public-header .public-nav-inner .public-nav-btn--theme {
+    flex: 0 0 auto !important;
+    flex-direction: row !important;
+    width: 100% !important;
+    height: 44px !important;
+    min-height: 44px !important;
+    padding: 0 16px !important;
+    gap: 10px !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  header.public-header .public-nav-inner .public-nav-btn[href="admin/login.php"] {
+    margin-top: 8px !important;
+  }
+  header.public-header .public-nav-inner .nav-icon {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    font-size: 15px;
+  }
+}
+
+/* phones: search drops to its own full-width row under the toggle/brand/language row */
+@media (max-width: 600px) {
+  header.public-header {
+    flex-wrap: wrap;
+  }
+  header.public-header .brand {
+    min-width: 0;
+  }
+  header.public-header .header-search {
+    order: 4;
+    flex: 0 0 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+  }
+  header.public-header .public-nav {
+    left: 10px;
+    right: 10px;
+    width: auto;
+  }
+  header.public-header .header-actions select {
+    max-width: 132px;
+    padding: 6px 4px 6px 8px;
+    font-size: 12px;
+  }
+}
+
+/* ============================================================
+   Menu items live ONLY inside the toggle on phones and tablets
+   (any width, portrait or landscape). The duplicate quick buttons
+   in the header (Home / Waa'ee / Gargaarsa / Log In) are shown on
+   mouse-driven desktop screens only, and the menu list opens only
+   when the toggle is pressed.
+   ============================================================ */
+@media (max-width: 1100px), (hover: none) and (pointer: coarse) {
+  header.public-header .public-nav-quick {
+    display: none !important;
+  }
+}
+header.public-header .public-nav:not(.is-open) {
+  display: none !important;
+}
