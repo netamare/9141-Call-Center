@@ -371,3 +371,111 @@ html[data-theme="dark"] header.public-header .public-nav .public-nav-inner .publ
     display: none !important;
   }
 }
+
+/* Shared civic header finish */
+header.public-header {
+  padding: 12px clamp(16px, 3vw, 36px);
+  gap: 12px 18px;
+  background: color-mix(in srgb, var(--panel) 92%, transparent);
+  border-bottom-color: color-mix(in srgb, var(--border) 84%, var(--cyan) 16%);
+  box-shadow: 0 8px 28px rgba(15, 23, 42, 0.08);
+  backdrop-filter: blur(18px) saturate(1.25);
+  -webkit-backdrop-filter: blur(18px) saturate(1.25);
+}
+
+header.public-header .brand {
+  gap: 12px;
+}
+
+header.public-header .brand .logo {
+  width: 48px;
+  height: 48px;
+  padding: 4px;
+  border-radius: 15px;
+  border-color: var(--border);
+  box-shadow: 0 3px 10px rgba(15, 23, 42, 0.08);
+}
+
+header.public-header .brand-eyebrow {
+  letter-spacing: 0.13em;
+}
+
+header.public-header .brand-title {
+  letter-spacing: -0.035em;
+}
+
+header.public-header .public-nav-quick .public-nav-btn {
+  border-radius: 11px !important;
+  box-shadow: none !important;
+}
+
+header.public-header .public-nav-quick .public-nav-btn.is-active {
+  background: var(--cyan-soft) !important;
+  border-color: color-mix(in srgb, var(--cyan) 30%, var(--border)) !important;
+  color: var(--cyan) !important;
+  box-shadow: inset 0 -2px 0 var(--cyan) !important;
+}
+
+header.public-header .public-nav-quick .public-nav-btn[href="admin/login.php"] {
+  border-radius: 11px !important;
+  box-shadow: 0 5px 14px color-mix(in srgb, var(--cyan) 22%, transparent) !important;
+}
+
+header.public-header .nav-toggle {
+  border-radius: 13px !important;
+  background: var(--cyan) !important;
+  box-shadow: 0 5px 14px color-mix(in srgb, var(--cyan) 24%, transparent);
+  transition: background-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
+}
+
+header.public-header .nav-toggle:hover {
+  background: var(--cyan-hover) !important;
+  box-shadow: 0 7px 18px color-mix(in srgb, var(--cyan) 30%, transparent);
+  transform: translateY(-1px);
+}
+
+header.public-header .header-search {
+  border-color: var(--border) !important;
+  background: var(--panel-2);
+  box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.025);
+}
+
+header.public-header .header-search:focus-within {
+  border-color: var(--cyan) !important;
+  box-shadow: var(--focus-ring);
+}
+
+header.public-header .header-search-submit {
+  background: var(--cyan) !important;
+}
+
+header.public-header .header-search-submit:hover {
+  background: var(--cyan-hover) !important;
+}
+
+header.public-header .header-actions select {
+  border-color: var(--border) !important;
+  background: var(--panel);
+}
+
+html[data-theme="dark"] header.public-header .public-nav-quick .public-nav-btn:not([href="admin/login.php"]) {
+  background: var(--panel-2) !important;
+  border-color: var(--border) !important;
+  color: var(--text) !important;
+}
+
+html[data-theme="dark"] header.public-header .public-nav-quick .public-nav-btn.is-active {
+  background: var(--cyan-soft) !important;
+  color: var(--cyan) !important;
+}
+
+@media (max-width: 900px) {
+  header.public-header {
+    padding: 9px 14px;
+    gap: 9px 12px;
+  }
+
+  header.public-header .public-nav-quick .public-nav-btn {
+    border-radius: 12px !important;
+  }
+}

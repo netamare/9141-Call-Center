@@ -98,7 +98,7 @@ $header_subtitle = t('site_subtitle');
 $active_nav = 'home';
 require __DIR__ . '/includes/public_header.php';
 ?>
-<div class="container">
+<div class="container landing-page">
 
     <?php if ($success): ?>
     <div class="card">
@@ -110,7 +110,7 @@ require __DIR__ . '/includes/public_header.php';
     </div>
     <?php endif; ?>
 
-    <div class="card">
+    <div class="card landing-form-card">
         <h2><?= t('home_heading') ?></h2>
         <p><?= t('home_intro') ?></p>
 
