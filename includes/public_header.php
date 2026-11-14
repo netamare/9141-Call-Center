@@ -1,15 +1,4 @@
 <?php
-/**
- * Shared public header with brand, responsive nav (desktop buttons + mobile toggle),
- * language switcher, and optional citizen notification bell.
- * Include after <body> on public pages.
- *
- * Optional vars before include:
- *   $header_title   - overrides brand-title text
- *   $header_subtitle - overrides brand-subtitle
- *   $active_nav     - one of: home|login|about|feedback|help|supervisor
- *   $citizen_notif_count - int badge on bell (default 0)
- */
 if (!function_exists('t')) {
     require_once __DIR__ . '/lang.php';
 }
@@ -17,15 +6,6 @@ $header_title    = $header_title    ?? (function_exists('t') ? t('site_title') :
 $header_subtitle = $header_subtitle ?? (function_exists('t') ? t('site_subtitle') : '');
 $active_nav      = $active_nav ?? '';
 $citizen_notif_count = isset($citizen_notif_count) ? (int)$citizen_notif_count : 0;
-// Translation with an English fallback: t() returns the raw key when a language file has no entry,
-// which is how "night_mode" / "search_tracking_placeholder" ended up on screen.
-$__ph = function ($key, $fallback) {
-    if (function_exists('t_raw')) {
-        $v = t_raw($key);
-        if ($v !== $key && $v !== '') return htmlspecialchars($v);
-    }
-    return htmlspecialchars($fallback);
-};
 ?>
 <link rel="stylesheet" href="assets/public-header.css?v=<?= @filemtime(__DIR__ . '/../assets/public-header.css') ?: time() ?>">
 <header class="public-header">
@@ -48,9 +28,6 @@ $__ph = function ($key, $fallback) {
         <span class="nav-toggle-bar"></span>
     </button>
 
-    <!-- Toggle content (all screen sizes): Home, About, Help, Notifications, Feedback,
-         Supervisor, Night Mode, Log In — always one vertical drop-down list, with a small
-         gap above Log In. -->
     <nav class="public-nav" id="publicNav" aria-label="Main">
         <div class="public-nav-inner">
             <a class="public-nav-btn public-nav-btn--home<?= $active_nav === 'home' ? ' is-active' : '' ?>" href="index.php">
@@ -85,7 +62,7 @@ $__ph = function ($key, $fallback) {
                     <svg id="publicThemeIconMoon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
                     <svg id="publicThemeIconSun" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none;"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
                 </span>
-                <span><?= $__ph('night_mode', 'Night Mode') ?></span>
+                <span><?= function_exists('t') ? t('night_mode') : 'Night Mode' ?></span>
             </button>
             <a class="public-nav-btn<?= $active_nav === 'login' ? ' is-active' : '' ?>" href="admin/login.php">
                 <span class="nav-icon" aria-hidden="true">🔑</span>
@@ -93,9 +70,6 @@ $__ph = function ($key, $fallback) {
             </a>
         </div>
     </nav>
-
-    <!-- Duplicate of Home/About/Help/Feedback/Log In — shown in the header row on desktop,
-         hidden on mobile (there they exist only inside the toggle above) -->
     <nav class="public-nav-quick" aria-label="Quick actions">
         <a class="public-nav-btn public-nav-btn--home<?= $active_nav === 'home' ? ' is-active' : '' ?>" href="index.php">
             <span class="nav-icon" aria-hidden="true">🏠</span>
@@ -109,10 +83,9 @@ $__ph = function ($key, $fallback) {
             <span class="nav-icon" aria-hidden="true">🆘</span>
             <span><?= function_exists('t') ? t('btn_help_short'):'Help' ?></span>
         </a>
-        <a class="public-nav-btn<?= $active_nav === 'feedback' ? ' is-active' : '' ?>" href="citizen_feedback.php">
-            <span class="nav-icon" aria-hidden="true">💬</span>
-            <span><?= function_exists('t') ? t('btn_feedback_short') : 'Feedback' ?></span>
-        </a>
+
+
+        
         <a class="public-nav-btn<?= $active_nav === 'login' ? ' is-active' : '' ?>" href="admin/login.php">
             <span class="nav-icon" aria-hidden="true">🔑</span>
             <span><?= function_exists('t') ? t('Log In'):'Log In' ?></span>
@@ -125,7 +98,7 @@ $__ph = function ($key, $fallback) {
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
         </span>
         <input type="search" name="code" class="header-search-input"
-               placeholder="<?= $__ph('search_tracking_placeholder', 'Search tracking code…') ?>"
+               placeholder="<?= function_exists('t') ? t('search_tracking_placeholder') : 'Search tracking code…' ?>"
                autocomplete="off" aria-label="Search tracking code">
         <button type="submit" class="header-search-submit" aria-label="Search">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>

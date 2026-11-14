@@ -119,6 +119,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             error_log('event_attachments media insert failed: ' . $e->getMessage());
         }
 
+        // Handle extra uploaded files (image, video, audio, document) — same as public index
+        if (!empty($_FILES['attachments']['name'][0])) {
+            $count = count($_FILES['attachments']['name']);
+            for ($i = 0; $i < min($count, MAX_FILES_PER_REPORT); $i++) {
+                if ($_FILES['attachments']['error'][$i] === UPLOAD_ERR_NO_FILE) continue;
+                $file = [
+                    'name'     => $_FILES['attachments']['name'][$i],
+                    'type'     => $_FILES['attachments']['type'][$i],
+                    'tmp_name' => $_FILES['attachments']['tmp_name'][$i],
+                    'error'    => $_FILES['attachments']['error'][$i],
+                    'size'     => $_FILES['attachments']['size'][$i],
+                ];
+                save_report_attachment($pdo, $new_id, $file);
+            }
+        }
+
         $method_note = $registration_method === 'voice'
             ? 'Registered by voice input'
             : ($registration_method === 'live_stream' ? 'Registered by live stream video' : 'Registered by call center operator');
@@ -191,7 +207,7 @@ $dir = t_raw('dir');
             </button>
         </div>
 
-        <form method="post" id="eventForm">
+        <form method="post" id="eventForm" enctype="multipart/form-data">
             <?= csrf_field() ?>
             <input type="hidden" name="registration_method" id="registrationMethod" value="manual">
 
@@ -350,6 +366,12 @@ $dir = t_raw('dir');
                     <input type="text" name="address" placeholder="Street, house number, or extra details (optional)">
                 </div>
                 <?php render_location_picker('newEventMap'); ?>
+       <div style="margin-top:14px;">
+                    <label><?= t('label_attachments') ?: 'Faayila / Attachment (image, video, file)' ?></label>
+                    <input type="file" name="attachments[]" multiple accept="image/*,video/*,audio/*,.pdf,.doc,.docx" capture>
+                    <div class="hint"><?= t('attachments_hint') ?: 'Suuraa, viidiyoo, sagalee ykn PDF/DOC hanga ' . (int)MAX_FILES_PER_REPORT . ' faayilaatti olkaa\'uu dandeessa.' ?></div>
+                </div>
+
                 <div style="margin-top:14px;">
                     <label><?= t('escalate_to_department') ?></label>
                     <select name="department_id">
@@ -359,6 +381,9 @@ $dir = t_raw('dir');
                         <?php endforeach; ?>
                     </select>
                 </div>
+
+                <!-- File attachments (image / video / audio / document) — same as public index -->
+
                 <button type="submit" class="btn-primary" id="registerBtn" style="margin-top:16px;"><?= t('btn_register_event') ?></button>
             </div>
         </form>

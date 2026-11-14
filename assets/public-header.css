@@ -1,374 +1,84 @@
-/* ============================================================
-   Public header — toggle + quick links
-   Loaded AFTER assets/style.css (linked from includes/public_header.php),
-   so these rules win over the older header rules in style.css.
 
-   MOBILE  (<= 900px)
-     Header row : toggle · logo · language, search bar underneath.
-     Toggle     : ALL links (Home, About, Help, Notifications, Feedback,
-                  Supervisor, Night Mode, Log In) in ONE vertical drop-down list.
-
-   DESKTOP (>= 901px)
-     Header row : Home · About · Help · Feedback · Log In are shown directly.
-     Toggle     : still visible; opens the SAME vertical drop-down list
-                  with every link (the ones above + Notifications,
-                  Supervisor, Night Mode).
-   ============================================================ */
-
-/* ---------- Toggle button: visible on every screen size ----------
-   Loaded LAST, so these !important rules are the final word on shape/size,
-   regardless of anything else (generic button/.btn resets, caching, etc.)
-   that might otherwise stretch it into a pill. */
 header.public-header .nav-toggle {
-  display: flex !important;
-  order: -1 !important;
-  box-sizing: border-box !important;
-  flex: 0 0 44px !important;
-  width: 44px !important;
-  height: 44px !important;
-  min-width: 44px !important;
-  min-height: 44px !important;
-  max-width: 44px !important;
-  max-height: 44px !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  border: none !important;
-  border-radius: 14px !important;
-  background: #2563EB !important;
-  flex-direction: column !important;
-  align-items: center !important;
-  justify-content: center !important;
-  gap: 0 !important;
-  position: relative !important;
-}
-header.public-header .nav-toggle-bar {
-  display: block !important;
-  height: 2.5px !important;
-  background: #fff !important;
-  border-radius: 2px !important;
-  margin: 0 0 4.5px !important;
-}
-header.public-header .nav-toggle-bar:last-child { margin-bottom: 0 !important; }
-header.public-header .nav-toggle-bar:nth-child(1) { width: 18px !important; }
-header.public-header .nav-toggle-bar:nth-child(2) { width: 14px !important; }
-header.public-header .nav-toggle-bar:nth-child(3) { width: 10px !important; }
-
-/* Open state = a clean X (bars pinned to the centre of the button) */
-header.public-header .nav-toggle[aria-expanded="true"] .nav-toggle-bar:nth-child(1),
-header.public-header .nav-toggle[aria-expanded="true"] .nav-toggle-bar:nth-child(3) {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 20px;
-  margin: 0;
-}
-header.public-header .nav-toggle[aria-expanded="true"] .nav-toggle-bar:nth-child(1) {
-  transform: translate(-50%, -50%) rotate(45deg);
-}
-header.public-header .nav-toggle[aria-expanded="true"] .nav-toggle-bar:nth-child(3) {
-  transform: translate(-50%, -50%) rotate(-45deg);
-}
-
-/* ---------- Drop-down card (toggle content) — always vertical ---------- */
-header.public-header .public-nav {
-  display: none;
-  position: absolute;
-  top: 100%;
-  left: 14px;
-  width: 250px;
-  max-width: calc(100vw - 28px);
-  margin: 8px 0 0;
-  padding: 0;
-  background: transparent;
-  border: 0;
-  box-shadow: none;
-  z-index: 150;
-}
-
-header.public-header .public-nav.is-open {
-  display: block;
-}
-
-header.public-header .public-nav .public-nav-inner {
-  display: flex !important;
-  flex-direction: column !important;
-  flex-wrap: nowrap !important;
-  align-items: stretch !important;
-  gap: 8px !important;
-  padding: 12px !important;
-  width: 100%;
-  max-height: calc(100vh - 96px);
-  max-height: calc(100dvh - 96px);
-  overflow-x: hidden;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-  overscroll-behavior: contain;
-  box-sizing: border-box;
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  box-shadow: var(--shadow-md, 0 12px 32px rgba(15, 23, 42, .18));
-}
-
-/* Every item: one full-width row, icon on the left, label next to it */
-header.public-header .public-nav .public-nav-inner .public-nav-btn,
-header.public-header .public-nav .public-nav-inner .public-nav-btn--home,
-header.public-header .public-nav .public-nav-inner .public-nav-btn--supervisor,
-header.public-header .public-nav .public-nav-inner .public-nav-btn--notif,
-header.public-header .public-nav .public-nav-inner .public-nav-btn--theme {
-  flex: 0 0 auto !important;
-  flex-direction: row !important;
-  align-items: center !important;
-  justify-content: flex-start !important;
-  gap: 10px !important;
-  width: 100% !important;
-  height: 44px !important;
-  min-height: 44px !important;
-  margin: 0 !important;
-  padding: 0 14px !important;
-  box-sizing: border-box;
-  border-radius: 12px !important;
-  font-size: 14px !important;
-  font-weight: 600 !important;
-  line-height: 1.2 !important;
-  text-align: left;
-  white-space: nowrap;
-  position: relative;
-}
-
-header.public-header .public-nav .public-nav-inner .public-nav-btn .nav-icon {
-  flex: 0 0 22px;
-  width: 22px;
+  order: -1;
   display: inline-flex;
-  align-items: center;
+  flex-direction: column;
   justify-content: center;
-  font-size: 17px;
-  line-height: 1;
-}
-
-header.public-header .public-nav .public-nav-inner .public-nav-btn span:not(.nav-icon):not(.notif-badge) {
-  display: block;
-  flex: 1 1 auto;
-  min-width: 0;
-  max-width: none;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* Notification counter sits at the right end of its row */
-header.public-header .public-nav .public-nav-inner .notif-badge {
-  position: static;
-  margin-left: auto;
-  box-shadow: none;
-}
-
-/* Small deliberate gap above Log In (last item) */
-header.public-header .public-nav .public-nav-inner .public-nav-btn[href="admin/login.php"] {
-  margin-top: 8px !important;
-  background: #1E3A8A !important;
-  border-color: #1E3A8A !important;
-  color: #FFFFFF !important;
-}
-header.public-header .public-nav .public-nav-inner .public-nav-btn[href="admin/login.php"]:hover,
-header.public-header .public-nav .public-nav-inner .public-nav-btn[href="admin/login.php"]:focus-visible {
-  background: #152A66 !important;
-  border-color: #152A66 !important;
-  color: #FFFFFF !important;
-}
-
-/* Active page highlight inside the list */
-header.public-header .public-nav .public-nav-inner .public-nav-btn.is-active {
-  background: #EFF6FF !important;
-  border-color: #93C5FD !important;
-  color: #1E3A8A !important;
-  font-weight: 700 !important;
-}
-header.public-header .public-nav .public-nav-inner .public-nav-btn[href="admin/login.php"].is-active {
-  background: #152A66 !important;
-  color: #FFFFFF !important;
-}
-
-/* ---------- Quick links in the header row (desktop only) ---------- */
-header.public-header .public-nav-quick {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: nowrap;
   align-items: center;
-  gap: 6px;
-  flex: 0 0 auto;
-  flex-shrink: 0;
-  min-width: 0;
+  gap: 4px;
+  position: relative;
+  width: 44px;
+  height: 44px;
   margin: 0;
-  order: 0;
+  padding: 0;
+  border: none;
+  border-radius: 12px;
+  background: transparent;
+  box-shadow: none;
+  filter: none;
+  cursor: pointer;
+  flex-shrink: 0;
+  visibility: visible;
+  opacity: 1;
+  transition: background .15s ease, transform .18s ease;
+}
+header.public-header .nav-toggle:hover,
+header.public-header .nav-toggle:focus-visible {
+  background: var(--cyan-soft, #EEF4FF);
+  transform: none;
+  filter: none;
+  box-shadow: none;
+  outline: none;
+}
+header.public-header .nav-toggle:focus-visible {
+  outline: 2px solid var(--cyan, #1E3A8A);
+  outline-offset: 2px;
+}
+header.public-header .nav-toggle:active {
+  transform: scale(0.94);
 }
 
-header.public-header .public-nav-quick .public-nav-btn {
-  flex: 0 0 auto;
-  flex-direction: row;
-  height: 40px;
-  padding: 0 14px;
-  font-size: 13px;
+/* no yellow dot */
+header.public-header .nav-toggle::before {
+  display: none !important;
 }
 
-header.public-header .public-nav-quick .public-nav-btn[href="admin/login.php"] {
-  background: #1E3A8A !important;
-  border-color: #1E3A8A !important;
-  color: #FFFFFF !important;
-}
-header.public-header .public-nav-quick .public-nav-btn[href="admin/login.php"]:hover,
-header.public-header .public-nav-quick .public-nav-btn[href="admin/login.php"]:focus-visible {
-  background: #152A66 !important;
-  border-color: #152A66 !important;
-  color: #FFFFFF !important;
-}
-
-/* ---------- MOBILE / small tablet (<= 900px) ---------- */
-@media (max-width: 900px) {
-  /* Quick links live only inside the toggle here */
-  header.public-header .public-nav-quick {
-    display: none !important;
-  }
-
-  /* Row 1: toggle · logo/title · language.  Row 2: search bar. */
-  header.public-header {
-    flex-wrap: wrap;
-    padding: 8px 12px;
-    gap: 8px 10px;
-    min-height: 0;
-  }
-  header.public-header .brand {
-    order: 1;
-    flex: 1 1 0;
-    min-width: 0;
-  }
-  header.public-header .header-actions {
-    order: 2;
-    margin-left: 0;
-  }
-  header.public-header .header-actions select {
-    width: auto;
-    max-width: 104px;
-    padding: 7px 8px !important;
-    font-size: 12px !important;
-    border-radius: 10px !important;
-  }
-  header.public-header .header-search {
-    order: 4;
-    flex: 0 0 100% !important;
-    max-width: 100% !important;
-    min-width: 0 !important;
-    height: 38px !important;
-    margin: 0 !important;
-  }
-  /* keep page content clear of the two-row fixed header */
-  body:has(header.public-header) {
-    padding-top: 112px;
-  }
-
-  /* Drop-down spans the screen width under the header */
-  header.public-header .public-nav {
-    left: 12px;
-    right: 12px;
-    width: auto;
-    max-width: none;
-  }
-
-  header.public-header .public-nav .public-nav-inner {
-    max-height: calc(100vh - 80px);
-    max-height: calc(100dvh - 80px);
-  }
+/* three equal navy lines */
+header.public-header .nav-toggle-bar,
+header.public-header .nav-toggle-bar:nth-child(1),
+header.public-header .nav-toggle-bar:nth-child(2),
+header.public-header .nav-toggle-bar:nth-child(3) {
+  display: block;
+  width: 24px;
+  height: 3px;
+  margin: 0;
+  border-radius: 2px;
+  background: var(--cyan, #1E3A8A);
+  transform-origin: center;
+  transition: transform .25s ease, opacity .2s ease;
 }
 
-/* ---------- DESKTOP (>= 901px) ---------- */
-@media (min-width: 901px) {
-  header.public-header .public-nav-quick {
-    display: flex !important;
-  }
-
-  /* Language selector stays on the far right */
-  header.public-header .header-actions {
-    margin-left: auto;
-  }
-
-  /* The page behind the drop-down must stay scrollable */
-  body.nav-open {
-    overflow: auto;
-  }
+/* open = X (line pitch = 3px bar + 4px gap = 7px) */
+header.public-header .nav-toggle[aria-expanded="true"] .nav-toggle-bar:nth-child(1) {
+  width: 24px;
+  margin: 0;
+  transform: translateY(7px) rotate(45deg);
+}
+header.public-header .nav-toggle[aria-expanded="true"] .nav-toggle-bar:nth-child(2) {
+  width: 24px;
+  margin: 0;
+  opacity: 0;
+}
+header.public-header .nav-toggle[aria-expanded="true"] .nav-toggle-bar:nth-child(3) {
+  width: 24px;
+  margin: 0;
+  transform: translateY(-7px) rotate(-45deg);
 }
 
-/* Narrow desktops / landscape tablets (901px - 1200px):
-   Row 1 = toggle · logo/title · Home About Help Feedback Log In · language,
-   Row 2 = search bar (so nothing overlaps). */
-@media (min-width: 901px) and (max-width: 1200px) {
-  header.public-header {
-    flex-wrap: wrap;
-    padding: 8px 14px;
-    gap: 8px 10px;
-    min-height: 0;
-  }
-  header.public-header .brand {
-    flex: 1 1 0;
-    min-width: 0;
-  }
-  header.public-header .brand-eyebrow,
-  header.public-header .brand-subtitle {
-    display: none;
-  }
-  header.public-header .brand-title {
-    max-width: 170px;
-  }
-  header.public-header .public-nav-quick {
-    flex-shrink: 0;
-    gap: 4px;
-  }
-  header.public-header .public-nav-quick .public-nav-btn {
-    padding: 0 12px;
-    font-size: 12.5px;
-  }
-  header.public-header .public-nav-quick .nav-icon {
-    display: none;
-  }
-  header.public-header .header-actions {
-    order: 3;
-  }
-  header.public-header .header-search {
-    order: 4;
-    flex: 0 0 100% !important;
-    max-width: 100% !important;
-    min-width: 0 !important;
-    height: 38px !important;
-    margin: 0 !important;
-  }
-  body:has(header.public-header) {
-    padding-top: 112px;
-  }
-}
-
-/* ---------- Dark mode ---------- */
-html[data-theme="dark"] header.public-header .public-nav .public-nav-inner .public-nav-btn:not([href="admin/login.php"]) {
-  background: var(--panel-2, #1E293B) !important;
-  border-color: var(--border) !important;
-  color: var(--text) !important;
-}
-html[data-theme="dark"] header.public-header .public-nav .public-nav-inner .public-nav-btn:not([href="admin/login.php"]):hover,
-html[data-theme="dark"] header.public-header .public-nav .public-nav-inner .public-nav-btn:not([href="admin/login.php"]):focus-visible,
-html[data-theme="dark"] header.public-header .public-nav .public-nav-inner .public-nav-btn.is-active:not([href="admin/login.php"]) {
-  background: var(--cyan-soft) !important;
-  color: var(--cyan) !important;
-}
-
-/* ---------- Print ---------- */
-@media print {
-  header.public-header {
-    position: static !important;
-    border-bottom: 2px solid var(--text);
-    margin-bottom: 20px;
-  }
-  header.public-header .public-nav,
-  header.public-header .public-nav-quick,
-  header.public-header .header-search,
+@media (max-width: 640px) {
   header.public-header .nav-toggle {
-    display: none !important;
+    width: 38px;
+    height: 38px;
   }
 }
 

@@ -10,7 +10,6 @@ $cat_keys = ['cat_illegal', 'cat_security', 'cat_service', 'cat_emergency'];
 
 $departments = $pdo->query("SELECT * FROM departments ORDER BY name")->fetchAll();
 
-// Department officers only ever see events assigned to their own department
 $deptScopeSql = '';
 $deptScopeParams = [];
 if ($role === 'department_officer' && $myDeptId) {
