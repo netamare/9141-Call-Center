@@ -1,26 +1,24 @@
-# 🚨 9141 Call Center — Event Escalation & Response Monitoring System
+# 🚨 9141 Call Center – Event Escalation & Response Monitoring System
 
-A multilingual web-based emergency and public-service reporting platform designed to receive, classify, monitor, escalate, and track citizen reports in real time.
+A multilingual web-based platform designed to help citizens report emergencies and public-service issues while enabling call center staff to monitor, assign, track, and escalate reports efficiently.
+
+🌐 **Live Website:** https://callcenter.aigcafe.com/
 
 ## ✨ Key Features
 
 ### 📞 Citizen Reporting
-- Submit incidents online
-- Four major service categories
-- Location and GPS support
-- Phone number validation
-- Photo, video, audio, and document attachments
-- Tracking code for every report
+- Online incident reporting
+- Four service categories
+- GPS location support
+- Photo, video, audio, and document uploads
+- Unique report tracking codes
 
 ### 🖥️ Management Dashboard
-- Real-time event monitoring
-- Event statistics
+- Real-time incident monitoring
+- Statistics and analytics
 - Department assignment
-- Escalation management
-- SLA/overdue monitoring
-- Search and filtering
-- CSV reporting
-- Audit trail
+- Escalation and overdue tracking
+- Search, filtering, and CSV reports
 
 ### 👥 User Roles
 - Administrator
@@ -29,129 +27,62 @@ A multilingual web-based emergency and public-service reporting platform designe
 - Department Officer
 - Camera / Control Room Operator
 
-### 🤖 AI Detection
-- Video/image analysis
-- Vehicle detection
-- People and crowd analysis
-- Traffic congestion detection
-- Suspicious activity analysis
-- Detection results mapped to service categories
+### 🤖 AI-Powered Detection
+- Image and video analysis
+- Vehicle and crowd detection
+- Traffic congestion monitoring
+- Suspicious activity detection
+- Automatic incident categorization
 
 ### 📹 Camera Monitoring
 - Live camera streams
-- HLS streaming
-- MJPEG/HTTP streams
-- Camera management
-- Camera health monitoring
-- Browser webcam testing
-- RTSP → HLS support
+- HLS and MJPEG/HTTP support
+- Camera management and health monitoring
+- RTSP to HLS streaming support
 
 ### 🗺️ GPS & Live Map
-- GPS coordinates for incidents
-- Interactive incident map
-- Category-based markers
+- Incident location tracking
+- Interactive map with category-based markers
 - Priority indicators
-- Department-based visibility
 - Automatic map updates
 
 ### 🌍 Multilingual Support
-
-The system supports:
-
-🇬🇧 English  
-🟢 Afaan Oromoo  
-🇪🇹 Amharic  
-🇸🇦 Arabic  
-🇪🇷 Tigrinya  
-🇸🇴 Somali  
-🟡 Afar
+Supports seven languages:
+- English
+- Afaan Oromoo
+- Amharic
+- Arabic
+- Tigrinya
+- Somali
+- Afar
 
 ### 🔔 Notifications
-- Real-time notifications
-- Urgent alerts
+- Real-time and urgent alerts
 - SMS notification support
 - Notification history
-- Browser alarm for critical events
+- Browser alarms for critical incidents
 
 ### 🔐 Security
 - Session-based authentication
 - Role-based access control
 - CSRF protection
-- Prepared SQL statements
-- Login brute-force protection
-- Honeypot spam protection
-- Secure file upload handling
-- Idle-session timeout
+- Secure file uploads
+- SQL injection protection
+- Login attempt protection
 
 ## 🏛️ Main Service Categories
 
 | Category | Description |
 |---|---|
-| 🚨 Illegal Acts | Reports related to illegal activities |
+| 🚨 Illegal Acts | Illegal activity reports |
 | 🛡️ Security | Security-related incidents |
 | 🏢 Service Delivery | Public service complaints |
-| 🚑 Accident / Disaster | Accidents and emergency situations |
+| 🚑 Accident / Disaster | Accidents and emergencies |
 
 ## 🛠️ Technologies
 
-- PHP
-- MySQL
-- HTML5
-- CSS3
-- JavaScript
-- Chart.js
-- Leaflet.js
-- hls.js
-- Python
-- Pillow
-- FFmpeg
-- XAMPP / Apache
+PHP · MySQL · HTML5 · CSS3 · JavaScript · Python · Chart.js · Leaflet.js · hls.js · FFmpeg · Pillow · XAMPP
 
-## 📂 Project Structure
+## 🌐 Live Demo
 
-```text
-9141-Call-Center/
-│
-├── admin/
-│   ├── dashboard.php
-│   ├── monitoring.php
-│   ├── analytics.php
-│   ├── reports.php
-│   ├── users.php
-│   ├── departments.php
-│   ├── cameras.php
-│   ├── cameras_manage.php
-│   ├── live_map.php
-│   └── settings.php
-│
-├── ai/
-│   └── detect.py
-│
-├── assets/
-│   ├── css/
-│   ├── js/
-│   └── logo/
-│
-├── includes/
-│   ├── security.php
-│   ├── notifications.php
-│   ├── cameras.php
-│   ├── maps.php
-│   └── lang.php
-│
-├── lang/
-│   ├── en.php
-│   ├── om.php
-│   ├── am.php
-│   ├── ar.php
-│   ├── ti.php
-│   ├── so.php
-│   └── aa.php
-│
-├── uploads/
-│
-├── index.php
-├── track.php
-├── config.php
-├── schema.sql
-└── README.md
+Explore the platform: **https://callcenter.aigcafe.com/**
